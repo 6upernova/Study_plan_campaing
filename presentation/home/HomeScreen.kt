@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import edu.dyds.movies.presentation.home.components.GraphBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,30 +42,35 @@ fun HomeScreen(
 	// ELIMINAR CUANDO SE CONECTE AL VIEWMODEL REAL
 	// ============================================================
 	val graphNodes = listOf(
-		"ELEMENTOS DE ALGEBRA Y DE GEOMETRIA" to 10,
-		"RESOLUCION DE PROBLEMAS Y ALGORITMOS" to 10,
-		"ANALISIS MATEMATICO I" to 20,
-		"INTRODUCCION A LA PROGRAMACION ORIENTADA A OBJETOS" to 20,
-		"LENGUAJES FORMALES Y AUTOMATAS" to 20,
-		"ESTRUCTURAS DE DATOS" to 30,
-		"TEORIA DE LA COMPUTABILIDAD" to 30,
-		"ANALISIS MATEMATICO II" to 40,
-		"Idioma de Lic. en Ciencias de la Computación, plan 2012" to 40,
-		"ORGANIZACION DE COMPUTADORAS" to 40,
-		"TECNOLOGIA DE PROGRAMACION" to 40,
-		"ANALISIS Y DISEÑO DE SISTEMAS" to 50,
-		"ARQUITECTURA DE COMPUTADORAS" to 50,
-		"LOGICA PARA CIENCIAS DE LA COMPUTACION" to 50,
-		"BASES DE DATOS" to 60,
-		"METODOS DE COMPUTACION CIENTIFICA" to 60,
-		"MODELOS ESTADISTICOS PARA CIENCIAS DE LA COMPUTACION" to 60,
-		"SISTEMAS OPERATIVOS Y DISTRIBUIDOS" to 60,
-		"DISEÑO Y DESARROLLO DE SOFTWARE" to 70,
-		"LENGUAJES DE PROGRAMACION" to 70,
-		"REDES DE COMPUTADORAS" to 70,
-		"ADMINISTRACION DE PROYECTOS DE SOFTWARE" to 80,
-		"COMPILADORES E INTERPRETES" to 80,
-		"INTELIGENCIA ARTIFICIAL" to 80,
+		"ELEMENTOS DE ALGEBRA Y DE GEOMETRIA" to 1,
+		"RESOLUCION DE PROBLEMAS Y ALGORITMOS" to 1,
+		"ANALISIS MATEMATICO I" to 2,
+		"INTRODUCCION A LA PROGRAMACION ORIENTADA A OBJETOS" to 2,
+		"LENGUAJES FORMALES Y AUTOMATAS" to 2,
+		"ESTRUCTURAS DE DATOS" to 3,
+		"TEORIA DE LA COMPUTABILIDAD" to 3,
+		"ANALISIS MATEMATICO II" to 4,
+		"Idioma de Lic. en Ciencias de la Computación, plan 2012" to 4,
+		"ORGANIZACION DE COMPUTADORAS" to 4,
+		"TECNOLOGIA DE PROGRAMACION" to 4,
+		"ANALISIS Y DISEÑO DE SISTEMAS" to 5,
+		"ARQUITECTURA DE COMPUTADORAS" to 5,
+		"LOGICA PARA CIENCIAS DE LA COMPUTACION" to 5,
+		"BASES DE DATOS" to 6,
+		"METODOS DE COMPUTACION CIENTIFICA" to 6,
+		"MODELOS ESTADISTICOS PARA CIENCIAS DE LA COMPUTACION" to 6,
+		"SISTEMAS OPERATIVOS Y DISTRIBUIDOS" to 6,
+		"DISEÑO Y DESARROLLO DE SOFTWARE" to 7,
+		"LENGUAJES DE PROGRAMACION" to 7,
+		"REDES DE COMPUTADORAS" to 7,
+		"ADMINISTRACION DE PROYECTOS DE SOFTWARE" to 8,
+		"COMPILADORES E INTERPRETES" to 8,
+		"INTELIGENCIA ARTIFICIAL" to 8,
+		"ALGORITMOS Y COMPLEJIDAD" to 9,
+		"INGENIERIA DE APLICACIONES DE WEB" to 9,
+		"Optativa de Lic. en Ciencias de la Computación, plan 2012" to 9,
+		"Optativa de Lic. en Ciencias de la Computación, plan 2012" to 10,
+		"TESIS DE LICENCIATURA" to 10,
 	)
 	// ============================================================
 
@@ -77,7 +83,7 @@ fun HomeScreen(
 				topBar = {
 					TopAppBar(
 						title = {
-							Text(stringResource(Res.string.app_name))
+							Text("Lic Ciencias de la Computacion")
 						},
 						scrollBehavior = scrollBehavior
 					)
@@ -120,6 +126,8 @@ private fun GraphView(
 			.padding(padding)
 	) {
 
+		GraphBackground()
+
 		val graphWidth = maxWidth
 		val graphHeight = maxHeight
 
@@ -127,20 +135,9 @@ private fun GraphView(
 
 		if (columnCount == 0) return@BoxWithConstraints
 
-		/*
-         * Espacio horizontal asignado a cada columna.
-         */
 		val horizontalStep = graphWidth / columnCount
-
-		/*
-         * El botón ocupará aproximadamente el 90%
-         * del ancho de la columna.
-         */
 		val buttonWidth = horizontalStep * 0.9f
 
-		/*
-         * Fuente adaptable al tamaño disponible.
-         */
 		val fontSize =
 			(horizontalStep.value * 0.07f)
 				.coerceIn(8f, 14f)
@@ -148,19 +145,12 @@ private fun GraphView(
 
 		groupedNodes.entries.forEachIndexed { columnIndex, (_, group) ->
 
-			/*
-             * Centra el botón dentro de la columna.
-             */
 			val x =
 				horizontalStep * columnIndex +
 						(horizontalStep - buttonWidth) / 2
 
 			val nodeCount = group.size
 
-			/*
-             * Distribuye verticalmente los nodos
-             * usando toda la altura disponible.
-             */
 			val verticalStep =
 				graphHeight / (nodeCount + 1)
 
