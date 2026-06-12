@@ -1,6 +1,6 @@
 package org.edu.stones.data.external.dto
 
-import org.edu.stones.domain.Subject
+import org.edu.stones.domain.entity.Subject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

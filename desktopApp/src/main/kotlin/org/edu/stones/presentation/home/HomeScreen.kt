@@ -23,10 +23,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import edu.dyds.movies.presentation.home.components.GraphBackground
+import org.edu.stones.presentation.home.components.GraphBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+	viewModel: HomeViewModel
 ) {
 
 	// ============================================================
