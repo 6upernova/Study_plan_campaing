@@ -1,4 +1,4 @@
-package edu.dyds.movies.presentation.home.components
+package org.edu.stones.presentation.home.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

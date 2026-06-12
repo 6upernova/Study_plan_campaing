@@ -1,7 +1,7 @@
 package org.edu.stones.data.external.broker
 
 import org.edu.stones.data.external.SubjectDetailExternalSource
-import org.edu.stones.domain.entity.Subject
+import org.edu.stones.domain.Subject
 
 class SubjectsBroker(
     private val sources: List<SubjectDetailExternalSource>,

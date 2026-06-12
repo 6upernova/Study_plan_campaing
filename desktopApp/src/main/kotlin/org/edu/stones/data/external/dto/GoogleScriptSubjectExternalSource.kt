@@ -1,7 +1,7 @@
 package org.edu.stones.data.external.dto
 
 import org.edu.stones.data.external.SubjectDetailExternalSource
-import org.edu.stones.domain.entity.Subject
+import org.edu.stones.domain.Subject
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.DefaultRequest
