@@ -1,6 +1,6 @@
 package org.edu.stones.domain.repository
 
-import com.sun.tools.jdeps.Graph
+import org.edu.stones.domain.entity.Graph
 import org.edu.stones.domain.entity.Subject
 
 interface SubjectRepository {

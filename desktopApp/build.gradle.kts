@@ -16,7 +16,7 @@ repositories {
 dependencies {
 
     implementation(projects.shared)
-
+    implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
 
@@ -30,8 +30,8 @@ dependencies {
     implementation("org.jetbrains.compose.material3:material3:1.9.0")
 
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
-
     implementation(libs.androidx.runtime.desktop)
+
 }
 
 
