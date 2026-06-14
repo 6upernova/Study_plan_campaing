@@ -31,6 +31,7 @@ dependencies {
 
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
     implementation(libs.androidx.runtime.desktop)
+    implementation("org.jgrapht:jgrapht-core:1.5.2")
 
 }
 
