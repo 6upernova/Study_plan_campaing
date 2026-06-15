@@ -25,6 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.edu.stones.domain.entity.Subject
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+
 
 @Composable
 fun SubjectDetailScreen(
@@ -41,15 +45,23 @@ fun SubjectDetailScreen(
 
                 HeaderSection(subject.nombre)
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
 
-                PropertiesTable(subject)
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    GeneralInfoSection(subject)
+                }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
 
-                StatisticsSection(subject)
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    StatisticsSection(subject)
+                }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
 
                 LegendSection(subject.abreviatura)
             }
@@ -71,6 +83,35 @@ private fun HeaderSection(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall
+        )
+    }
+}
+
+@Composable
+private fun GeneralInfoSection(
+    subject: Subject
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        PropertiesTable(
+            subject = subject,
+            modifier = Modifier.weight(2f)
+        )
+
+        Spacer(Modifier.width(16.dp))
+
+        Image(
+            painter = painterResource("images/fotoBase.png"),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .border(1.dp, Color.Gray)
         )
     }
 }
@@ -181,7 +222,7 @@ private fun ApprovalCard(
 
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(100.dp)
             ) {
 
                 Canvas(
