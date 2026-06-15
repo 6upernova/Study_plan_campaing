@@ -20,9 +20,18 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.rememberWindowState
 import org.edu.stones.presentation.home.components.GraphBackground
+import org.edu.stones.presentation.detail.SubjectDetailScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +75,7 @@ fun HomeScreen(
 		"TESIS DE LICENCIATURA" to 10,
 	)
 	// ============================================================
+	val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
 
 	MaterialTheme {
 		Surface {
@@ -95,6 +105,15 @@ fun HomeScreen(
 
 						// Aquí luego puedes traducir el String
 						// a la navegación o evento real.
+						openedWindows.value = openedWindows.value + label
+					}
+				)
+			}
+			openedWindows.value.forEachIndexed { index, subjectName ->
+				SubjectDetailWindow(
+					subjectName = subjectName,
+					onClose = {
+						openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
 					}
 				)
 			}
@@ -170,6 +189,46 @@ private fun GraphView(
 						maxLines = 4
 					)
 				}
+			}
+		}
+	}
+}
+
+@Composable
+fun SubjectDetailWindow(
+	subjectName: String,
+	onClose: () -> Unit
+) {
+	Window(
+		onCloseRequest = onClose,
+		title = subjectName,
+		state = rememberWindowState(width = 900.dp, height = 700.dp)
+	) {
+		MaterialTheme {
+			Surface {
+				// Crear datos de prueba para la pantalla de detalle de materia
+				val subjectDetail = SubjectDetailScreen(
+					code = "CS-101",
+					name = subjectName,
+					year = 1,
+					period = "1Q",
+					collectionYear = 2024,
+					averageGrade = 7.5,
+					enrolled = 120,
+					approved = 98,
+					modality = "Presencial",
+					description = "Esta es una materia de prueba con información de ejemplo. Aquí se pueden ver las estadísticas y detalles de la materia seleccionada."
+				)
+
+				// Crear un painter placeholder vacío
+				SubjectDetailScreen(
+					subject = subjectDetail,
+					illustration = object : Painter() {
+						override val intrinsicSize: Size = Size(100f, 100f)
+						override fun DrawScope.onDraw() {}
+					},
+					modifier = Modifier
+				)
 			}
 		}
 	}
