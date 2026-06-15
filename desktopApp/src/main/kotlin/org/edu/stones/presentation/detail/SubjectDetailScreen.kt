@@ -3,7 +3,6 @@
 package org.edu.stones.presentation.detail
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -22,33 +21,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.edu.stones.domain.entity.Subject
 
-data class SubjectDetailUi(
-    val code: String,
-    val name: String,
-    val year: Int,
-    val period: String,
-    val collectionYear: Int,
-    val averageGrade: Double,
-    val enrolled: Int,
-    val approved: Int,
-    val modality: String,
-    val description: String
-) {
-    val approvalPercentage: Float
-        get() = approved.toFloat() / enrolled.toFloat()
-
-    val attendancePercentage: Float
-        get() = if (modality.equals("Presencial", true)) 1f else 0f
-}
 
 @Composable
 fun SubjectDetailScreen(
-    subject: SubjectDetailUi,
-    illustration: Painter,
+    subject: Subject,
     modifier: Modifier = Modifier
 ) {
     MaterialTheme {
@@ -59,14 +39,11 @@ fun SubjectDetailScreen(
                     .padding(16.dp)
             ) {
 
-                HeaderSection(subject.name)
+                HeaderSection(subject.nombre)
 
                 Spacer(Modifier.height(16.dp))
 
-                InformationSection(
-                    subject = subject,
-                    illustration = illustration
-                )
+                PropertiesTable(subject)
 
                 Spacer(Modifier.height(16.dp))
 
@@ -74,7 +51,7 @@ fun SubjectDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                LegendSection(subject.description)
+                LegendSection(subject.abreviatura)
             }
         }
     }
@@ -99,31 +76,8 @@ private fun HeaderSection(
 }
 
 @Composable
-private fun InformationSection(
-    subject: SubjectDetailUi,
-    illustration: Painter
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
-        PropertiesTable(
-            subject = subject,
-            modifier = Modifier.weight(1f)
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        IllustrationSection(
-            painter = illustration,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
 private fun PropertiesTable(
-    subject: SubjectDetailUi,
+    subject: Subject,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -133,15 +87,15 @@ private fun PropertiesTable(
         )
     ) {
 
-        PropertyRow("Código", subject.code)
-        PropertyRow("Nombre", subject.name)
-        PropertyRow("Año", subject.year.toString())
-        PropertyRow("Período", subject.period)
-        PropertyRow("Año de recopilación", subject.collectionYear.toString())
-        PropertyRow("Notas promedio", "%.2f".format(subject.averageGrade))
-        PropertyRow("Inscriptos", subject.enrolled.toString())
-        PropertyRow("Presencialidad", subject.modality)
-        PropertyRow("Cant. aprobados", subject.approved.toString())
+        PropertyRow("Código", subject.codigo)
+        PropertyRow("Nombre", subject.nombre)
+        PropertyRow("Año", subject.anio.toString())
+        PropertyRow("Período", subject.periodo)
+        PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
+        PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
+        PropertyRow("Inscriptos", subject.inscriptos.toString())
+        PropertyRow("Presencialidad", subject.presencialidad)
+        PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
     }
 }
 
@@ -170,44 +124,38 @@ private fun PropertyRow(
 }
 
 @Composable
-private fun IllustrationSection(
-    painter: Painter,
-    modifier: Modifier = Modifier
-) {
-    Image(
-        painter = painter,
-        contentDescription = null,
-        modifier = modifier.aspectRatio(1f)
-    )
-}
-
-@Composable
 private fun StatisticsSection(
-    subject: SubjectDetailUi
+    subject: Subject
 ) {
+    val approvalPercentage = if (subject.inscriptos > 0) {
+        subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
+    } else {
+        0f
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
 
         ApprovalCard(
-            percentage = subject.approvalPercentage,
-            approved = subject.approved,
-            enrolled = subject.enrolled,
+            percentage = approvalPercentage,
+            approved = subject.cantAprobados,
+            enrolled = subject.inscriptos,
             modifier = Modifier.weight(1f)
         )
 
         Spacer(Modifier.width(12.dp))
 
         AverageCard(
-            average = subject.averageGrade,
+            average = subject.notasPromedio,
             modifier = Modifier.weight(1f)
         )
 
         Spacer(Modifier.width(12.dp))
 
         AttendanceCard(
-            modality = subject.modality,
-            percentage = subject.attendancePercentage,
+            modality = subject.presencialidad,
+            percentage = if (subject.presencialidad.equals("Presencial", true)) 1f else 0f,
             modifier = Modifier.weight(1f)
         )
     }
@@ -394,7 +342,7 @@ private fun AttendanceCard(
 
 @Composable
 private fun LegendSection(
-    description: String
+    abbreviation: String
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -407,6 +355,6 @@ private fun LegendSection(
 
         Spacer(Modifier.height(8.dp))
 
-        Text(description)
+        Text(abbreviation)
     }
 }

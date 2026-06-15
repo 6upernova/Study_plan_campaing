@@ -12,4 +12,5 @@ data class Subject(
     val cantAprobados: Int,
     val correlativasCursadas: String?,
     val correlativasAprobadas: String?,
+    val abreviatura: String
 )

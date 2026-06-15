@@ -3,6 +3,7 @@ package org.edu.stones.data.external.dto
 import org.edu.stones.domain.entity.Subject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.String
 
 @Serializable
 data class DTORemoteMaterias(
@@ -17,6 +18,7 @@ data class DTORemoteMaterias(
     @SerialName("CantAprobados")val cantAprobados: Int,
     @SerialName("CorrelativasCursadas")val correlativasCursadas: String? = null,
     @SerialName("CorrelativasAprobadas")val correlativasAprobadas: String? = null,
+    @SerialName("abreviatura")val abreviatura: String = "",
 )
 
 fun DTORemoteMaterias.toDomain(): Subject =
@@ -32,5 +34,6 @@ fun DTORemoteMaterias.toDomain(): Subject =
         cantAprobados = cantAprobados,
         correlativasCursadas = correlativasCursadas,
         correlativasAprobadas = correlativasAprobadas,
+        abreviatura = abreviatura
     )
 

@@ -22,14 +22,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import org.edu.stones.domain.entity.Subject
 import org.edu.stones.presentation.home.components.GraphBackground
 import org.edu.stones.presentation.detail.SubjectDetailScreen
 
@@ -207,26 +205,24 @@ fun SubjectDetailWindow(
 		MaterialTheme {
 			Surface {
 				// Crear datos de prueba para la pantalla de detalle de materia
-				val subjectDetail = SubjectDetailScreen(
-					code = "CS-101",
-					name = subjectName,
-					year = 1,
-					period = "1Q",
-					collectionYear = 2024,
-					averageGrade = 7.5,
-					enrolled = 120,
-					approved = 98,
-					modality = "Presencial",
-					description = "Esta es una materia de prueba con información de ejemplo. Aquí se pueden ver las estadísticas y detalles de la materia seleccionada."
+				val subjectDetail = Subject(
+					codigo = "CS-101",
+					nombre = subjectName,
+					anio = 1,
+					periodo = "1Q",
+					anioDeRecopilacion = 2024,
+					notasPromedio = 7.5,
+					inscriptos = 120,
+					presencialidad = "Si",
+					cantAprobados = 10,
+					correlativasCursadas = "AM1",
+					correlativasAprobadas = "",
+					abreviatura = "asdfasdf"
 				)
 
 				// Crear un painter placeholder vacío
 				SubjectDetailScreen(
 					subject = subjectDetail,
-					illustration = object : Painter() {
-						override val intrinsicSize: Size = Size(100f, 100f)
-						override fun DrawScope.onDraw() {}
-					},
 					modifier = Modifier
 				)
 			}
