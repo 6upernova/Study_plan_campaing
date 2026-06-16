@@ -12,6 +12,10 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import io.ktor.client.statement.bodyAsText
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.serializer
 
 class GoogleScriptSubjectExternalSource(
     private val clientProvider: () -> HttpClient = { createHttpClient() },
@@ -19,7 +23,16 @@ class GoogleScriptSubjectExternalSource(
     private val subjectResponseProvider:
     suspend (HttpClient) -> List<DTORemoteMaterias> =
         { client ->
-            client.get("/").body<List<DTORemoteMaterias>>()
+            val response = client.get("")
+            val jsonString = response.bodyAsText()
+            println(jsonString)
+            val jsonParser = Json { ignoreUnknownKeys = true }
+            val materias = jsonParser.decodeFromString<List<DTORemoteMaterias>>(
+                serializer<List<DTORemoteMaterias>>(),
+                jsonString
+            )
+
+            materias
         },
 ) : SubjectDetailExternalSource {
 
@@ -36,7 +49,11 @@ class GoogleScriptSubjectExternalSource(
         return runCatching {
             subjectResponseProvider(clientProvider())
                 .map { it.toDomain() }
-        }.getOrElse { emptyList() }
+        }.getOrElse { error ->
+            println("Error obteniendo materias: ${error.message}")
+            error.printStackTrace()
+            emptyList()
+        }
     }
 }
 
@@ -55,11 +72,11 @@ private fun createHttpClient(): HttpClient =
                 protocol = URLProtocol.HTTPS
                 host = "script.google.com"
                 encodedPath =
-                    "/macros/s/AKfycbyxkoDQRowETbQ1bcUN8XFufPyT6A4jqviA65XYQOmBeEgJ-MEf6YcwRGUc_wvWv3Puvw/exec"
+                    "/macros/s/AKfycbzA1e6tJE4A5vfsp_mJwUro-0FGxXL9eBnDC5WQLRKBX0ma4CYYVxjjxtgfGqtBL2aXsQ/exec"
             }
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
+            requestTimeoutMillis = 8000
         }
     }

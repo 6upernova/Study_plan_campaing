@@ -10,8 +10,11 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import org.edu.stones.data.external.SubjectDetailExternalSource
+import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCaseImpl
+import org.edu.stones.domain.entity.Subject
 
 private val TMDB_API_KEY: String = System.getenv("TMDB_API_KEY")
     ?: "d18da1b5da16397619c688b0263cd281"
@@ -37,10 +40,6 @@ object MoviesDependencyInjector {
             }
         }
 
-    //private val localDataSource = MoviesLocalDataSourceImpl()
-
-    //private val tmdbRemoteSource = TMDBMoviesExternalSource(tmdbHttpClient)
-
     private val omdbApiKey: String
         get() {
             val envKey = System.getenv("OMDB_API_KEY")
@@ -64,7 +63,9 @@ object MoviesDependencyInjector {
     @Composable
     fun getHomeViewModel(): HomeViewModel {
         return viewModel {
-            val subjectRepository = SubjectsRepositoryImpl()
+            val lista: List<SubjectDetailExternalSource> = emptyList()
+            val subjectsBroker = SubjectsBroker(lista)
+            val subjectRepository = SubjectsRepositoryImpl(subjectsBroker)
 //                getAllSubjectsUseCase = popularMoviesExternalSource,
 //            movieDetailExternalSource = movieDetailExternalSource,
 //                localDataSource = localDataSource
