@@ -18,7 +18,6 @@ class SubjectsRepositoryImpl(
 
         val subjectMap = subjectsList.associateBy { it.codigo }
 
-
         subjectsList.forEach { graph.addVertex(it) }
 
 
@@ -41,6 +40,6 @@ class SubjectsRepositoryImpl(
     }
 
     override suspend fun getSubjectDetail(id: String): Subject? {
-        TODO("Not yet implemented")
+        return subjectsBroker.getSubjectsByCareer("ISI").firstOrNull { it.codigo == id }
     }
 }
