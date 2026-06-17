@@ -11,4 +11,3 @@ interface SubjectRepository {
     suspend fun getAllSubjects(): DefaultDirectedGraph<Subject, DefaultEdge>
     suspend fun getSubjectDetail(id: String): Subject?
 }
-

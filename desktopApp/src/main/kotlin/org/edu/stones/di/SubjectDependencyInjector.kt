@@ -12,64 +12,24 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.external.broker.SubjectsBroker
+import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCaseImpl
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.presentation.detail.DetailViewModel
+import kotlin.collections.List
 
-private val TMDB_API_KEY: String = System.getenv("TMDB_API_KEY")
-    ?: "d18da1b5da16397619c688b0263cd281"
+object SubjectDependencyInjector {
 
-object MoviesDependencyInjector {
-
-    private val tmdbHttpClient =
-        HttpClient {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                })
-            }
-            install(DefaultRequest) {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "api.themoviedb.org"
-                    parameters.append("api_key", TMDB_API_KEY)
-                }
-            }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 5000
-            }
-        }
-
-    private val omdbApiKey: String
-        get() {
-            val envKey = System.getenv("OMDB_API_KEY")
-            if (envKey != null) return envKey
-            val env = System.getenv("APP_ENV") ?: "development"
-            return if (env == "development") {
-                "a96e7f78"
-            } else {
-                error("OMDB_API_KEY environment variable is not set")
-            }
-        }
-
-//    private val omdbRemoteSource = OMDBMoviesExternalSource(apiKey = omdbApiKey)
-//
-//      private val popularMoviesExternalSource = tmdbRemoteSource
-//      private val movieDetailExternalSource = MoviesBroker(
-//        tmdb = tmdbRemoteSource,
-//        omdb = omdbRemoteSource,
-//      )
+    private val sources: List<SubjectDetailExternalSource> = listOf(
+        GoogleScriptSubjectExternalSource()
+    )
+    private val subjectsBroker = SubjectsBroker(sources)
+    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker)
 
     @Composable
     fun getHomeViewModel(): HomeViewModel {
         return viewModel {
-            val lista: List<SubjectDetailExternalSource> = emptyList()
-            val subjectsBroker = SubjectsBroker(lista)
-            val subjectRepository = SubjectsRepositoryImpl(subjectsBroker)
-//                getAllSubjectsUseCase = popularMoviesExternalSource,
-//            movieDetailExternalSource = movieDetailExternalSource,
-//                localDataSource = localDataSource
-//            )
             HomeViewModel(
                 getAllSubjectsUseCase = GetAllSubjectsUseCaseImpl(subjectRepository),
                 getSubjectsUseCase = GetSubjectDetailUseCaseImpl(subjectRepository)
@@ -77,19 +37,13 @@ object MoviesDependencyInjector {
         }
     }
 
-
-//    @Composable
-//    fun getDetailViewModel(): DetailViewModel {
-//        return viewModel {
-//            val moviesRepository = MoviesRepositoryImpl(
-//            popularMoviesExternalSource = popularMoviesExternalSource,
-//            movieDetailExternalSource = movieDetailExternalSource,
-//                localDataSource = localDataSource
-//            )
-//            DetailViewModel(
-//                getMovieDetailUseCase = GetMovieDetailUseCaseImpl(moviesRepository)
-//            )
-//        }
-//    }
+    @Composable
+    fun getDetailViewModel(): DetailViewModel {
+        return viewModel {
+            DetailViewModel(
+                getSubjectDetailUseCase = GetSubjectDetailUseCaseImpl(subjectRepository)
+            )
+        }
+    }
 
 }

@@ -13,8 +13,6 @@ import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import io.ktor.client.statement.bodyAsText
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.serializer
 
 class GoogleScriptSubjectExternalSource(
@@ -25,7 +23,6 @@ class GoogleScriptSubjectExternalSource(
         { client ->
             val response = client.get("")
             val jsonString = response.bodyAsText()
-            println(jsonString)
             val jsonParser = Json { ignoreUnknownKeys = true }
             val materias = jsonParser.decodeFromString<List<DTORemoteMaterias>>(
                 serializer<List<DTORemoteMaterias>>(),
