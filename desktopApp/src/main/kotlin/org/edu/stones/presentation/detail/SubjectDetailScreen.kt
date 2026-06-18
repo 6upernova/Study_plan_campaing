@@ -32,38 +32,64 @@ import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun SubjectDetailScreen(
-    subject: Subject,
+    uiState: DetailViewModel.DetailUiState,
     modifier: Modifier = Modifier
 ) {
     MaterialTheme {
         Surface {
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
 
-                HeaderSection(subject.nombre)
-
-                Spacer(Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    GeneralInfoSection(subject)
+            when {
+                uiState.isLoading -> {
+                    println("Loading...")
+                    Box(
+                        modifier = modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Cargando materia..."
+                        )
+                    }
                 }
 
-                Spacer(Modifier.height(8.dp))
+                uiState.subject != null -> {
+                    print("Materia almacenada")
+                    val subject = uiState.subject
 
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    StatisticsSection(subject)
+                    Column(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+
+                        HeaderSection(subject.nombre)
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            GeneralInfoSection(subject)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            StatisticsSection(subject)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        LegendSection(subject.abreviatura)
+                    }
                 }
-
-                Spacer(Modifier.height(8.dp))
-
-                LegendSection(subject.abreviatura)
+                else -> {
+                    if(uiState.isLoading == false && uiState.subject == null)
+                        Text("Terminó de cargar y no hay datos")
+                    else if (uiState.isLoading == true && uiState.subject == null)
+                        Text("Cargando...")
+                }
             }
         }
     }

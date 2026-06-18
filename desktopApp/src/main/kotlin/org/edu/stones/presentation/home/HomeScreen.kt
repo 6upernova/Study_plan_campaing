@@ -19,15 +19,25 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.edu.stones.di.SubjectDependencyInjector
+
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
+import org.edu.stones.presentation.detail.DetailViewModel
 import org.edu.stones.presentation.home.components.GraphBackground
 import org.edu.stones.presentation.detail.SubjectDetailScreen
 
@@ -36,12 +46,19 @@ import org.edu.stones.presentation.detail.SubjectDetailScreen
 fun HomeScreen(
 	viewModel: HomeViewModel
 ) {
+	val uiState by viewModel.homeStateFlow.collectAsStateWithLifecycle()
 
+	//var graphNodes by remember { mutableStateOf<List<Subject>>(emptyList()) }
+
+
+	LaunchedEffect(Unit) {
+		viewModel.getAllSubjects()
+	}
 	// ============================================================
 	// DATOS DE PRUEBA HARDCODEADOS
 	// ELIMINAR CUANDO SE CONECTE AL VIEWMODEL REAL
 	// ============================================================
-	val graphNodes = listOf(
+	val graphNodes3 = listOf(
 		"ELEMENTOS DE ALGEBRA Y DE GEOMETRIA" to 1,
 		"RESOLUCION DE PROBLEMAS Y ALGORITMOS" to 1,
 		"ANALISIS MATEMATICO I" to 2,
@@ -74,46 +91,52 @@ fun HomeScreen(
 	)
 	// ============================================================
 	val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
+	if(uiState.isLoading){
+		CircularProgressIndicator()
+	}else {
+		val listNodes = uiState.subjectsList
 
-	MaterialTheme {
-		Surface {
+		MaterialTheme {
+			Surface {
 
-			val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+				val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-			Scaffold(
-				topBar = {
-					TopAppBar(
-						title = {
-							Text("Lic Ciencias de la Computacion")
-						},
-						scrollBehavior = scrollBehavior
+				Scaffold(
+					topBar = {
+						TopAppBar(
+							title = {
+								Text("Lic Ciencias de la Computacion")
+							},
+							scrollBehavior = scrollBehavior
+						)
+					},
+					modifier = Modifier.nestedScroll(
+						scrollBehavior.nestedScrollConnection
 					)
-				},
-				modifier = Modifier.nestedScroll(
-					scrollBehavior.nestedScrollConnection
-				)
-			) { padding ->
+				) { padding ->
 
-				GraphView(
-					padding = padding,
-					nodes = graphNodes,
-					onNodeClick = { label ->
+					GraphView(
+						padding = padding,
+						nodes = listNodes,
+						onNodeClick = { label ->
 
-						println("Nodo seleccionado: $label")
+							println("Nodo seleccionado: $label")
 
-						// Aquí luego puedes traducir el String
-						// a la navegación o evento real.
-						openedWindows.value = openedWindows.value + label
-					}
-				)
-			}
-			openedWindows.value.forEachIndexed { index, subjectName ->
-				SubjectDetailWindow(
-					subjectName = subjectName,
-					onClose = {
-						openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
-					}
-				)
+							// Aquí luego puedes traducir el String
+							// a la navegación o evento real.
+							openedWindows.value = openedWindows.value + label
+						}
+					)
+				}
+				openedWindows.value.forEachIndexed { index, subjectName ->
+					SubjectDetailWindow(
+						subjectName = subjectName,
+						onClose = {
+							openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
+						},
+						viewModel
+					)
+				}
 			}
 		}
 	}
@@ -122,12 +145,12 @@ fun HomeScreen(
 @Composable
 private fun GraphView(
 	padding: PaddingValues,
-	nodes: List<Pair<String, Int>>,
+	nodes: List<Triple<String, String,Int>>,
 	onNodeClick: (String) -> Unit
 ) {
 
 	val groupedNodes = nodes
-		.groupBy { it.second }
+		.groupBy { it.third }
 		.toSortedMap()
 
 	BoxWithConstraints(
@@ -164,14 +187,14 @@ private fun GraphView(
 			val verticalStep =
 				graphHeight / (nodeCount + 1)
 
-			group.forEachIndexed { rowIndex, (label, _) ->
+			group.forEachIndexed { rowIndex, (buttonText, _, _) ->
 
 				val y =
 					verticalStep * (rowIndex + 1)
 
 				Button(
 					onClick = {
-						onNodeClick(label)
+						onNodeClick(buttonText)
 					},
 					modifier = Modifier
 						.width(buttonWidth)
@@ -181,7 +204,7 @@ private fun GraphView(
 						)
 				) {
 					Text(
-						text = label,
+						text = buttonText,
 						fontSize = fontSize,
 						textAlign = TextAlign.Center,
 						maxLines = 4
@@ -195,7 +218,8 @@ private fun GraphView(
 @Composable
 fun SubjectDetailWindow(
 	subjectName: String,
-	onClose: () -> Unit
+	onClose: () -> Unit,
+	viewModel: HomeViewModel
 ) {
 	Window(
 		onCloseRequest = onClose,
@@ -220,9 +244,19 @@ fun SubjectDetailWindow(
 					abreviatura = "asdfasdf"
 				)
 
+				val detailViewModel = SubjectDependencyInjector.getDetailViewModel()
+
+				LaunchedEffect(subjectName) {
+					detailViewModel.getSubject("5793")
+				}
+
+
+				val uiState by detailViewModel.detailStateFlow.collectAsState(
+					initial = DetailViewModel.DetailUiState()
+				)
 				// Crear un painter placeholder vacío
 				SubjectDetailScreen(
-					subject = subjectDetail,
+					uiState = uiState,
 					modifier = Modifier
 				)
 			}

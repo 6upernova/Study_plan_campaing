@@ -37,4 +37,8 @@ class DetailViewModel(
         val isLoading: Boolean = false,
         val subject: Subject? = null,
     )
+
+    fun getDetail() {
+        detailUiState.value = DetailUiState()
+    }
 }
