@@ -37,10 +37,8 @@ fun SubjectDetailScreen(
 ) {
     MaterialTheme {
         Surface {
-
             when {
                 uiState.isLoading -> {
-                    println("Loading...")
                     Box(
                         modifier = modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -52,7 +50,6 @@ fun SubjectDetailScreen(
                 }
 
                 uiState.subject != null -> {
-                    print("Materia almacenada")
                     val subject = uiState.subject
 
                     Column(
@@ -87,7 +84,7 @@ fun SubjectDetailScreen(
                 else -> {
                     if(uiState.isLoading == false && uiState.subject == null)
                         Text("Terminó de cargar y no hay datos")
-                    else if (uiState.isLoading == true && uiState.subject == null)
+                    else
                         Text("Cargando...")
                 }
             }

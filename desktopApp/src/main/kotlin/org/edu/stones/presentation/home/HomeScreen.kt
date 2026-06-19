@@ -48,93 +48,49 @@ fun HomeScreen(
 ) {
 	val uiState by viewModel.homeStateFlow.collectAsStateWithLifecycle()
 
-	//var graphNodes by remember { mutableStateOf<List<Subject>>(emptyList()) }
-
-
 	LaunchedEffect(Unit) {
 		viewModel.getAllSubjects()
 	}
-	// ============================================================
-	// DATOS DE PRUEBA HARDCODEADOS
-	// ELIMINAR CUANDO SE CONECTE AL VIEWMODEL REAL
-	// ============================================================
-	val graphNodes3 = listOf(
-		"ELEMENTOS DE ALGEBRA Y DE GEOMETRIA" to 1,
-		"RESOLUCION DE PROBLEMAS Y ALGORITMOS" to 1,
-		"ANALISIS MATEMATICO I" to 2,
-		"INTRODUCCION A LA PROGRAMACION ORIENTADA A OBJETOS" to 2,
-		"LENGUAJES FORMALES Y AUTOMATAS" to 2,
-		"ESTRUCTURAS DE DATOS" to 3,
-		"TEORIA DE LA COMPUTABILIDAD" to 3,
-		"ANALISIS MATEMATICO II" to 4,
-		"Idioma de Lic. en Ciencias de la Computación, plan 2012" to 4,
-		"ORGANIZACION DE COMPUTADORAS" to 4,
-		"TECNOLOGIA DE PROGRAMACION" to 4,
-		"ANALISIS Y DISEÑO DE SISTEMAS" to 5,
-		"ARQUITECTURA DE COMPUTADORAS" to 5,
-		"LOGICA PARA CIENCIAS DE LA COMPUTACION" to 5,
-		"BASES DE DATOS" to 6,
-		"METODOS DE COMPUTACION CIENTIFICA" to 6,
-		"MODELOS ESTADISTICOS PARA CIENCIAS DE LA COMPUTACION" to 6,
-		"SISTEMAS OPERATIVOS Y DISTRIBUIDOS" to 6,
-		"DISEÑO Y DESARROLLO DE SOFTWARE" to 7,
-		"LENGUAJES DE PROGRAMACION" to 7,
-		"REDES DE COMPUTADORAS" to 7,
-		"ADMINISTRACION DE PROYECTOS DE SOFTWARE" to 8,
-		"COMPILADORES E INTERPRETES" to 8,
-		"INTELIGENCIA ARTIFICIAL" to 8,
-		"ALGORITMOS Y COMPLEJIDAD" to 9,
-		"INGENIERIA DE APLICACIONES DE WEB" to 9,
-		"Optativa de Lic. en Ciencias de la Computación, plan 2012" to 9,
-		"Optativa de Lic. en Ciencias de la Computación, plan 2012" to 10,
-		"TESIS DE LICENCIATURA" to 10,
-	)
-	// ============================================================
-	val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
-	if(uiState.isLoading){
-		CircularProgressIndicator()
-	}else {
-		val listNodes = uiState.subjectsList
 
 		MaterialTheme {
-			Surface {
+			val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
+			if(uiState.isLoading){
+				CircularProgressIndicator()
+			}else {
+				val listNodes = uiState.subjectsList
 
-				val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+				Surface {
 
-				Scaffold(
-					topBar = {
-						TopAppBar(
-							title = {
-								Text("Lic Ciencias de la Computacion")
-							},
-							scrollBehavior = scrollBehavior
+					val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+					Scaffold(
+						topBar = {
+							TopAppBar(
+								title = {
+									Text("Lic Ciencias de la Computacion")
+								},
+								scrollBehavior = scrollBehavior
+							)
+						},
+						modifier = Modifier.nestedScroll(
+							scrollBehavior.nestedScrollConnection
 						)
-					},
-					modifier = Modifier.nestedScroll(
-						scrollBehavior.nestedScrollConnection
-					)
-				) { padding ->
+					) { padding ->
 
-					GraphView(
-						padding = padding,
-						nodes = listNodes,
-						onNodeClick = { label ->
-
-							println("Nodo seleccionado: $label")
-
-							// Aquí luego puedes traducir el String
-							// a la navegación o evento real.
-							openedWindows.value = openedWindows.value + label
-						}
-					)
+						GraphView(
+							padding = padding,
+							nodes = listNodes,
+							onNodeClick = { id ->
+								openedWindows.value += id
+							}
+						)
 				}
-				openedWindows.value.forEachIndexed { index, subjectName ->
+				openedWindows.value.forEachIndexed { index, selectedSubject ->
 					SubjectDetailWindow(
-						subjectName = subjectName,
+						subjectCode = selectedSubject,
 						onClose = {
 							openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
-						},
-						viewModel
+						}
 					)
 				}
 			}
@@ -187,14 +143,14 @@ private fun GraphView(
 			val verticalStep =
 				graphHeight / (nodeCount + 1)
 
-			group.forEachIndexed { rowIndex, (buttonText, _, _) ->
+			group.forEachIndexed { rowIndex, (buttonText, subjectCode, _) ->
 
 				val y =
 					verticalStep * (rowIndex + 1)
 
 				Button(
 					onClick = {
-						onNodeClick(buttonText)
+						onNodeClick(subjectCode)
 					},
 					modifier = Modifier
 						.width(buttonWidth)
@@ -217,44 +173,26 @@ private fun GraphView(
 
 @Composable
 fun SubjectDetailWindow(
-	subjectName: String,
+	subjectCode: String,
 	onClose: () -> Unit,
-	viewModel: HomeViewModel
 ) {
 	Window(
 		onCloseRequest = onClose,
-		title = subjectName,
+		title = subjectCode,
 		state = rememberWindowState(width = 900.dp, height = 700.dp)
 	) {
 		MaterialTheme {
 			Surface {
-				// Crear datos de prueba para la pantalla de detalle de materia
-				val subjectDetail = Subject(
-					codigo = "CS-101",
-					nombre = subjectName,
-					anio = 1,
-					periodo = "1Q",
-					anioDeRecopilacion = 2024,
-					notasPromedio = 7.5,
-					inscriptos = 120,
-					presencialidad = "Si",
-					cantAprobados = 10,
-					correlativasCursadas = "AM1",
-					correlativasAprobadas = "",
-					abreviatura = "asdfasdf"
-				)
-
 				val detailViewModel = SubjectDependencyInjector.getDetailViewModel()
 
-				LaunchedEffect(subjectName) {
-					detailViewModel.getSubject("5793")
+				LaunchedEffect(subjectCode) {
+					detailViewModel.getSubject(subjectCode)
 				}
-
 
 				val uiState by detailViewModel.detailStateFlow.collectAsState(
 					initial = DetailViewModel.DetailUiState()
 				)
-				// Crear un painter placeholder vacío
+
 				SubjectDetailScreen(
 					uiState = uiState,
 					modifier = Modifier
