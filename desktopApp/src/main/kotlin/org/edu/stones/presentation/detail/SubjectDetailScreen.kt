@@ -3,31 +3,28 @@
 package org.edu.stones.presentation.detail
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.edu.stones.domain.entity.Subject
-
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.layout.ContentScale
+import org.jetbrains.skia.Image as SkiaImage
 
 
 @Composable
@@ -36,56 +33,74 @@ fun SubjectDetailScreen(
     modifier: Modifier = Modifier
 ) {
     MaterialTheme {
-        Surface {
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Cargando materia..."
-                        )
-                    }
-                }
-
-                uiState.subject != null -> {
-                    val subject = uiState.subject
-
-                    Column(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
-
-                        HeaderSection(subject.nombre)
-
-                        Spacer(Modifier.height(8.dp))
-
+        Box(
+            modifier = modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource("images/detailScreen/paperBackground.png"),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            Surface(
+                color = Color.Transparent,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when {
+                    uiState.isLoading -> {
                         Box(
-                            modifier = Modifier.weight(1f)
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            GeneralInfoSection(subject)
+                            Text(
+                                text = "Cargando materia..."
+                            )
                         }
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Box(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            StatisticsSection(subject)
-                        }
-
-                        Spacer(Modifier.height(8.dp))
-
-                        LegendSection(subject.abreviatura)
                     }
-                }
-                else -> {
-                    if(uiState.isLoading == false && uiState.subject == null)
-                        Text("Terminó de cargar y no hay datos")
-                    else
-                        Text("Cargando...")
+
+                    uiState.subject != null -> {
+                        val subject = uiState.subject
+
+                        Column(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+
+                            HeaderSection(subject.nombre)
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier.wrapContentHeight()
+                            ) {
+                                GeneralInfoSection(subject, uiState)
+                            }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            RequirementsSection(subject)
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                StatisticsSection(subject)
+                            }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            LegendSection(subject.abreviatura)
+                        }
+                    }
+
+                    else -> {
+                        if (uiState.isLoading == false && uiState.subject == null)
+                            Text("Terminó de cargar y no hay datos")
+                        else
+                            Text("Cargando...")
+                    }
                 }
             }
         }
@@ -99,20 +114,28 @@ private fun HeaderSection(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = painterResource("images/detailScreen/SubjectBorderName.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
+        )
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
+            modifier = Modifier.padding(16.dp)
         )
     }
 }
 
 @Composable
 private fun GeneralInfoSection(
-    subject: Subject
+    subject: Subject,
+    uiState: DetailViewModel.DetailUiState
 ) {
     Row(
         modifier = Modifier
@@ -127,10 +150,9 @@ private fun GeneralInfoSection(
 
         Spacer(Modifier.width(16.dp))
 
-        Image(
-            painter = painterResource("images/fotoBase.png"),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
+        SubjectImageBox(
+            imageBytes = uiState.imageBytes,
+            isImageLoading = uiState.isImageLoading,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
@@ -140,26 +162,78 @@ private fun GeneralInfoSection(
 }
 
 @Composable
+private fun SubjectImageBox(
+    imageBytes: ByteArray?,
+    isImageLoading: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val bitmap: ImageBitmap? = remember(imageBytes) {
+        imageBytes?.let { decodeImage(it) }
+    }
+    when {
+        isImageLoading -> {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        bitmap != null -> {
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
+                modifier = modifier
+            )
+        }
+        else -> {
+            Image(
+                painter = painterResource("images/fotoBase.png"),
+                contentDescription = null,
+                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
+                modifier = modifier
+            )
+        }
+    }
+}
+
+private fun decodeImage(bytes: ByteArray): ImageBitmap? =
+    runCatching { SkiaImage.makeFromEncoded(bytes).toComposeImageBitmap() }.getOrNull()
+
+@Composable
 private fun PropertiesTable(
     subject: Subject,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier.border(
             width = 1.dp,
             color = Color.Gray
         )
-    ) {
-
-        PropertyRow("Código", subject.codigo)
-        PropertyRow("Nombre", subject.nombre)
-        PropertyRow("Año", subject.anio.toString())
-        PropertyRow("Período", subject.periodo)
-        PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
-        PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
-        PropertyRow("Inscriptos", subject.inscriptos.toString())
-        PropertyRow("Presencialidad", subject.presencialidad)
-        PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
+    ){
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = modifier
+        )
+        Column(
+            modifier = modifier.border(
+                width = 1.dp,
+                color = Color.Gray
+            )
+        ) {
+            PropertyRow("Código", subject.codigo)
+            PropertyRow("Nombre", subject.nombre)
+            PropertyRow("Año", subject.anio.toString())
+            PropertyRow("Período", subject.periodo)
+            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
+            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
+            PropertyRow("Inscriptos", subject.inscriptos.toString())
+            PropertyRow("Presencialidad", subject.presencialidad)
+            PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
+        }
     }
 }
 
@@ -173,17 +247,52 @@ private fun PropertyRow(
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-
         Text(
             text = label,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f)
         )
-
         Text(
             text = value,
             modifier = Modifier.weight(1f)
         )
+    }
+}
+
+@Composable
+private fun RequirementsSection(
+    subject: Subject
+) {
+    val cursadasText = if (subject.correlativasCursadas.isNullOrBlank()) "Ninguna" else subject.correlativasCursadas
+    val aprobadasText = if (subject.correlativasAprobadas.isNullOrBlank()) "Ninguna" else subject.correlativasAprobadas
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = Color.Black)
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Requisitos para cursar/aprobar:",
+            style = MaterialTheme.typography.titleLarge,
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                text = "Cursadas: \"$cursadasText\"",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "Aprobadas: \"$aprobadasText\"",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
 

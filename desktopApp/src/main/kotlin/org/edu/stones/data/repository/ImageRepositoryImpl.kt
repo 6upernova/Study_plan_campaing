@@ -1,0 +1,35 @@
+package org.edu.stones.data.repository
+
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.edu.stones.data.cache.ImageDiskCache
+import org.edu.stones.data.external.ImageGenExternalSource
+import org.edu.stones.domain.repository.ImageRepository
+
+class ImageRepositoryImpl(
+    private val source: ImageGenExternalSource,
+    private val diskCache: ImageDiskCache,
+) : ImageRepository {
+
+    private val memory = mutableMapOf<String, ByteArray>()
+    private val mutex = Mutex()
+
+    override suspend fun getImageForPrompt(prompt: String): ByteArray? {
+        val key = diskCache.cacheKey(prompt)
+
+        // 1. memoria
+        mutex.withLock { memory[key] }?.let { return it }
+
+        // 2. disco -> calienta memoria
+        diskCache.get(key)?.let { fromDisk ->
+            mutex.withLock { memory[key] = fromDisk }
+            return fromDisk
+        }
+
+        // 3. red -> escribe disco + memoria (solo si exitoso)
+        val generated = source.generate(prompt) ?: return null
+        diskCache.put(key, generated)
+        mutex.withLock { memory[key] = generated }
+        return generated
+    }
+}
