@@ -183,7 +183,7 @@ private fun SubjectImageBox(
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = modifier
             )
         }
@@ -191,7 +191,7 @@ private fun SubjectImageBox(
             Image(
                 painter = painterResource("images/fotoBase.png"),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = modifier
             )
         }
