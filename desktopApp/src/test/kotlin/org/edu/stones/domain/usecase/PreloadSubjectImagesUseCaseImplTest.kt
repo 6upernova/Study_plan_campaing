@@ -33,7 +33,7 @@ class PreloadSubjectImagesUseCaseImplTest {
                 return byteArrayOf(1)
             }
         }
-        val preload = PreloadSubjectImagesUseCaseImpl(generate, backoffBaseMs = 0)
+        val preload = PreloadSubjectImagesUseCaseImpl(generate, delayBetweenRequestsMs = 0)
 
         val subjects = listOf("A", "B", "C", "D").map { subject(it) }
         preload(subjects)
@@ -50,7 +50,7 @@ class PreloadSubjectImagesUseCaseImplTest {
                 return if (n >= 2) byteArrayOf(1) else null // falla la 1ra, ok la 2da
             }
         }
-        val preload = PreloadSubjectImagesUseCaseImpl(generate, maxRetries = 3, backoffBaseMs = 0)
+        val preload = PreloadSubjectImagesUseCaseImpl(generate, delayBetweenRequestsMs = 0, maxAttemptsPerSubject = 3)
 
         preload(listOf(subject("X")))
 
@@ -66,7 +66,7 @@ class PreloadSubjectImagesUseCaseImplTest {
                 return null // siempre falla
             }
         }
-        val preload = PreloadSubjectImagesUseCaseImpl(generate, maxRetries = 3, backoffBaseMs = 0)
+        val preload = PreloadSubjectImagesUseCaseImpl(generate, delayBetweenRequestsMs = 0, maxAttemptsPerSubject = 3)
 
         preload(listOf(subject("Y")))
 

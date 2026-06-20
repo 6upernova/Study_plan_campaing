@@ -183,7 +183,7 @@ private fun SubjectImageBox(
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
                 modifier = modifier
             )
         }
@@ -191,7 +191,7 @@ private fun SubjectImageBox(
             Image(
                 painter = painterResource("images/fotoBase.png"),
                 contentDescription = null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
                 modifier = modifier
             )
         }
