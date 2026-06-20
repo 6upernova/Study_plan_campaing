@@ -13,6 +13,8 @@ import kotlinx.serialization.json.Json
 import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
+import org.edu.stones.data.local.SubjectLocalDataSource
+import org.edu.stones.data.local.SubjectLocalDataSourceImpl
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCaseImpl
 import org.edu.stones.domain.entity.Subject
@@ -21,11 +23,13 @@ import kotlin.collections.List
 
 object SubjectDependencyInjector {
 
+    private val localDataSource: SubjectLocalDataSource = SubjectLocalDataSourceImpl()
+
     private val sources: List<SubjectDetailExternalSource> = listOf(
         GoogleScriptSubjectExternalSource()
     )
     private val subjectsBroker = SubjectsBroker(sources)
-    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker)
+    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker, localDataSource)
 
     @Composable
     fun getHomeViewModel(): HomeViewModel {
