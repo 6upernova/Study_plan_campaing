@@ -21,7 +21,9 @@ import org.edu.stones.domain.entity.Subject
  */
 class PreloadSubjectImagesUseCaseImpl(
     private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
-    private val maxConcurrent: Int = 8,
+    // Pollinations anonimo solo permite 1 pedido por IP a la vez: con mas de 1
+    // se auto-inunda y devuelve 429. (Con NVIDIA esto se puede subir.)
+    private val maxConcurrent: Int = 1,
     private val maxRetries: Int = 3,
     private val backoffBaseMs: Long = 1500,
 ) : PreloadSubjectImagesUseCase {
