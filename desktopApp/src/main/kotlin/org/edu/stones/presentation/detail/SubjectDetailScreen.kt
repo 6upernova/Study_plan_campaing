@@ -28,6 +28,11 @@ import org.edu.stones.domain.entity.Subject
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.runtime.remember
+import org.jetbrains.skia.Image as SkiaImage
 
 
 @Composable
@@ -65,7 +70,7 @@ fun SubjectDetailScreen(
                         Box(
                             modifier = Modifier.weight(1f)
                         ) {
-                            GeneralInfoSection(subject)
+                            GeneralInfoSection(subject, uiState)
                         }
 
                         Spacer(Modifier.height(8.dp))
@@ -112,7 +117,8 @@ private fun HeaderSection(
 
 @Composable
 private fun GeneralInfoSection(
-    subject: Subject
+    subject: Subject,
+    uiState: DetailViewModel.DetailUiState
 ) {
     Row(
         modifier = Modifier
@@ -127,15 +133,51 @@ private fun GeneralInfoSection(
 
         Spacer(Modifier.width(16.dp))
 
-        Image(
-            painter = painterResource("images/fotoBase.png"),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
+        SubjectImageBox(
+            imageBytes = uiState.imageBytes,
+            isImageLoading = uiState.isImageLoading,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .border(1.dp, Color.Gray)
         )
+    }
+}
+
+@Composable
+private fun SubjectImageBox(
+    imageBytes: ByteArray?,
+    isImageLoading: Boolean,
+    modifier: Modifier = Modifier
+) {
+    when {
+        isImageLoading -> {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        imageBytes != null -> {
+            val bitmap: ImageBitmap = remember(imageBytes) {
+                SkiaImage.makeFromEncoded(imageBytes).toComposeImageBitmap()
+            }
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+        else -> {
+            Image(
+                painter = painterResource("images/fotoBase.png"),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
     }
 }
 

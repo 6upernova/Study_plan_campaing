@@ -13,6 +13,9 @@ import kotlinx.serialization.json.Json
 import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
+import org.edu.stones.data.external.dto.PollinationsImageSource
+import org.edu.stones.data.repository.ImageRepositoryImpl
+import org.edu.stones.domain.usecase.GenerateSubjectImageUseCaseImpl
 import org.edu.stones.data.local.SubjectLocalDataSource
 import org.edu.stones.data.local.SubjectLocalDataSourceImpl
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
@@ -29,7 +32,7 @@ object SubjectDependencyInjector {
         GoogleScriptSubjectExternalSource()
     )
     private val subjectsBroker = SubjectsBroker(sources)
-    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker, localDataSource)
+    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker)
 
     @Composable
     fun getHomeViewModel(): HomeViewModel {
@@ -45,7 +48,8 @@ object SubjectDependencyInjector {
     fun getDetailViewModel(): DetailViewModel {
         return viewModel {
             DetailViewModel(
-                getSubjectDetailUseCase = GetSubjectDetailUseCaseImpl(subjectRepository)
+                getSubjectDetailUseCase = GetSubjectDetailUseCaseImpl(subjectRepository),
+                generateSubjectImageUseCase = generateSubjectImageUseCase
             )
         }
     }

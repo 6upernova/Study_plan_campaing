@@ -34,6 +34,11 @@ dependencies {
     implementation(libs.androidx.runtime.desktop)
     implementation("org.jgrapht:jgrapht-core:1.5.2")
 
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
+
 }
 
 

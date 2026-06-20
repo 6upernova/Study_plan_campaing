@@ -7,10 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.domain.usecase.GenerateSubjectImageUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
 
 class DetailViewModel(
     private val getSubjectDetailUseCase: GetSubjectDetailUseCase,
+    private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
 ) : ViewModel() {
 
     private val detailUiState = MutableStateFlow(DetailUiState())
@@ -30,12 +32,29 @@ class DetailViewModel(
                 isLoading = false,
                 subject = subject
             )
+
+            if (subject != null) {
+                loadSubjectImage(subject)
+            }
+        }
+    }
+
+    private fun loadSubjectImage(subject: Subject) {
+        viewModelScope.launch {
+            detailUiState.value = detailUiState.value.copy(isImageLoading = true)
+            val imageBytes = generateSubjectImageUseCase(subject)
+            detailUiState.value = detailUiState.value.copy(
+                isImageLoading = false,
+                imageBytes = imageBytes
+            )
         }
     }
 
     data class DetailUiState(
         val isLoading: Boolean = false,
         val subject: Subject? = null,
+        val imageBytes: ByteArray? = null,
+        val isImageLoading: Boolean = false,
     )
 
     fun getDetail() {
