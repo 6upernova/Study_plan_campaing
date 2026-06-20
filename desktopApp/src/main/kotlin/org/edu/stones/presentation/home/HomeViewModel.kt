@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
+import org.edu.stones.domain.usecase.PreloadSubjectImagesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import org.jgrapht.graph.DefaultEdge
 class HomeViewModel(
     private val getAllSubjectsUseCase: GetAllSubjectsUseCase,
     private val getSubjectsUseCase: GetSubjectDetailUseCase,
+    private val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase,
 ) : ViewModel() {
 
     private val homeStateMutableStateFlow = MutableStateFlow(HomeUiState())
@@ -27,7 +29,8 @@ class HomeViewModel(
             homeStateMutableStateFlow.emit(HomeUiState(isLoading = true))
 
             val graph = getAllSubjectsUseCase()
-            val subjectsList = graph.vertexSet().toList().map { subject ->
+            val subjects = graph.vertexSet().toList()
+            val subjectsList = subjects.map { subject ->
                 Triple(subject.abreviatura, subject.codigo, (subject.anio - 1) * 2 + determatePeriod(subject.periodo))
             }
 
@@ -37,6 +40,10 @@ class HomeViewModel(
                     subjectsList = subjectsList
                 )
             )
+
+            // Pre-genera todas las imagenes en segundo plano y las deja en cache.
+            // No bloquea la UI; el detalle luego las lee del cache al instante.
+            launch { preloadSubjectImagesUseCase(subjects) }
         }
     }
 

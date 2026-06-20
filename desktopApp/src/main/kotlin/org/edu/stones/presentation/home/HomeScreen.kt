@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -86,12 +87,14 @@ fun HomeScreen(
 						)
 				}
 				openedWindows.value.forEachIndexed { index, selectedSubject ->
-					SubjectDetailWindow(
-						subjectCode = selectedSubject,
-						onClose = {
-							openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
-						}
-					)
+					key(selectedSubject) {
+						SubjectDetailWindow(
+							subjectCode = selectedSubject,
+							onClose = {
+								openedWindows.value = openedWindows.value.filterIndexed { i, _ -> i != index }
+							}
+						)
+					}
 				}
 			}
 		}
@@ -183,7 +186,7 @@ fun SubjectDetailWindow(
 	) {
 		MaterialTheme {
 			Surface {
-				val detailViewModel = SubjectDependencyInjector.getDetailViewModel()
+				val detailViewModel = SubjectDependencyInjector.getDetailViewModel(subjectCode)
 
 				LaunchedEffect(subjectCode) {
 					detailViewModel.getSubject(subjectCode)

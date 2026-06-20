@@ -150,6 +150,9 @@ private fun SubjectImageBox(
     isImageLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val bitmap: ImageBitmap? = remember(imageBytes) {
+        imageBytes?.let { decodeImage(it) }
+    }
     when {
         isImageLoading -> {
             Box(
@@ -159,10 +162,7 @@ private fun SubjectImageBox(
                 CircularProgressIndicator()
             }
         }
-        imageBytes != null -> {
-            val bitmap: ImageBitmap = remember(imageBytes) {
-                SkiaImage.makeFromEncoded(imageBytes).toComposeImageBitmap()
-            }
+        bitmap != null -> {
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
@@ -180,6 +180,9 @@ private fun SubjectImageBox(
         }
     }
 }
+
+private fun decodeImage(bytes: ByteArray): ImageBitmap? =
+    runCatching { SkiaImage.makeFromEncoded(bytes).toComposeImageBitmap() }.getOrNull()
 
 @Composable
 private fun PropertiesTable(

@@ -13,9 +13,11 @@ import kotlinx.serialization.json.Json
 import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
+import org.edu.stones.data.cache.ImageDiskCache
 import org.edu.stones.data.external.dto.PollinationsImageSource
 import org.edu.stones.data.repository.ImageRepositoryImpl
 import org.edu.stones.domain.usecase.GenerateSubjectImageUseCaseImpl
+import org.edu.stones.domain.usecase.PreloadSubjectImagesUseCaseImpl
 import org.edu.stones.data.local.SubjectLocalDataSource
 import org.edu.stones.data.local.SubjectLocalDataSourceImpl
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
@@ -35,22 +37,25 @@ object SubjectDependencyInjector {
     private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker, localDataSource)
 
     private val imageSource = PollinationsImageSource()
-    private val imageRepository = ImageRepositoryImpl(imageSource)
+    private val imageDiskCache = ImageDiskCache()
+    private val imageRepository = ImageRepositoryImpl(imageSource, imageDiskCache)
     private val generateSubjectImageUseCase = GenerateSubjectImageUseCaseImpl(imageRepository)
+    private val preloadSubjectImagesUseCase = PreloadSubjectImagesUseCaseImpl(generateSubjectImageUseCase)
 
     @Composable
     fun getHomeViewModel(): HomeViewModel {
         return viewModel {
             HomeViewModel(
                 getAllSubjectsUseCase = GetAllSubjectsUseCaseImpl(subjectRepository),
-                getSubjectsUseCase = GetSubjectDetailUseCaseImpl(subjectRepository)
+                getSubjectsUseCase = GetSubjectDetailUseCaseImpl(subjectRepository),
+                preloadSubjectImagesUseCase = preloadSubjectImagesUseCase
             )
         }
     }
 
     @Composable
-    fun getDetailViewModel(): DetailViewModel {
-        return viewModel {
+    fun getDetailViewModel(subjectCode: String): DetailViewModel {
+        return viewModel(key = "detail-$subjectCode") {
             DetailViewModel(
                 getSubjectDetailUseCase = GetSubjectDetailUseCaseImpl(subjectRepository),
                 generateSubjectImageUseCase = generateSubjectImageUseCase
