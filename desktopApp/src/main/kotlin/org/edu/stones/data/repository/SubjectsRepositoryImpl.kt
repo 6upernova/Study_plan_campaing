@@ -25,11 +25,7 @@ class SubjectsRepositoryImpl(
         }
 
         println("Cache miss - fetching from remote source")
-        val subjectsList = subjectsBroker.getSubjectsByCareer("ISI")
-        val graph = buildGraph(subjectsList)
-
-        val cachedGraphToSave = graph.toCachedGraph("ISI", CacheConstants.DEFAULT_VERSION)
-        localDataSource.saveGraph(cachedGraphToSave)
+        val graph = forceRefresh()
 
         return graph
     }
@@ -44,27 +40,34 @@ class SubjectsRepositoryImpl(
         val edgesToAdd = mutableListOf<Pair<Subject, Subject>>()
 
         subjectsList.forEach { subject ->
-            val prerequisitesCodes = subject.correlativasAprobadas
+            val codesAprobadas = subject.correlativasAprobadas
                 ?.split(',')
                 ?.map { it.trim() }
                 ?.filter { it.isNotEmpty() }
                 ?: emptyList()
 
-            for (code in prerequisitesCodes) {
+            val codesCursadas = subject.correlativasCursadas
+                ?.split(',')
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?: emptyList()
+
+            val allCodes = (codesAprobadas + codesCursadas).distinct()
+
+            for (code in allCodes) {
                 val prerequisiteSubject = subjectMap[code]
                 if (prerequisiteSubject != null) {
                     edgesToAdd.add(prerequisiteSubject to subject)
                 }
             }
         }
-
-        val edgesWithoutTransitive = removeTransitiveEdges(graph, edgesToAdd)
+        val edgesWithoutTransitive = edgesToAdd.toList() // TEMP TEST: sin eliminar transitivas
 
         edgesWithoutTransitive.forEach { (source, target) ->
             graph.addEdge(source, target)
         }
 
-        println("Graph built with ${graph.vertexSet().size} vertices and ${graph.edgeSet().size} edges")
+        println("Graph built with ${graph.vertexSet()} vertices and ${graph.edgeSet()} edges")
         return graph
     }
 
@@ -72,10 +75,9 @@ class SubjectsRepositoryImpl(
         graph: DefaultDirectedGraph<Subject, DefaultEdge>,
         edges: List<Pair<Subject, Subject>>
     ): List<Pair<Subject, Subject>> {
-        val subjectList = graph.vertexSet().toList()
         val adjacencyMap = mutableMapOf<Subject, MutableList<Subject>>()
 
-        subjectList.forEach { adjacencyMap[it] = mutableListOf() }
+        graph.vertexSet().forEach { adjacencyMap[it] = mutableListOf() }
 
         edges.forEach { (source, target) ->
             adjacencyMap[source]?.add(target)
@@ -84,9 +86,13 @@ class SubjectsRepositoryImpl(
         val edgesToKeep = mutableListOf<Pair<Subject, Subject>>()
 
         for ((source, target) in edges) {
-            val reachableFromSource = bfsReachable(source, adjacencyMap, excludeTarget = target)
+            adjacencyMap[source]?.remove(target)
 
-            if (!reachableFromSource.contains(target)) {
+            val reachable = bfsReachable(source, adjacencyMap)
+
+            adjacencyMap[source]?.add(target)
+
+            if (!reachable.contains(target)) {
                 edgesToKeep.add(source to target)
             } else {
                 println("Removing transitive edge: ${source.codigo} -> ${target.codigo}")
@@ -98,8 +104,7 @@ class SubjectsRepositoryImpl(
 
     private fun bfsReachable(
         start: Subject,
-        adjacencyMap: Map<Subject, List<Subject>>,
-        excludeTarget: Subject? = null
+        adjacencyMap: Map<Subject, List<Subject>>
     ): Set<Subject> {
         val visited = mutableSetOf<Subject>()
         val queue = ArrayDeque<Subject>()
@@ -111,7 +116,6 @@ class SubjectsRepositoryImpl(
             val neighbors = adjacencyMap[current] ?: emptyList()
 
             for (neighbor in neighbors) {
-                if (neighbor == excludeTarget) continue
                 if (!visited.contains(neighbor)) {
                     visited.add(neighbor)
                     queue.add(neighbor)

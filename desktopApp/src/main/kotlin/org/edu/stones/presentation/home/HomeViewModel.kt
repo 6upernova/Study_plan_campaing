@@ -2,16 +2,15 @@ package org.edu.stones.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import org.edu.stones.domain.entity.Subject
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.edu.stones.domain.entity.Subject
-import org.jgrapht.graph.DefaultDirectedGraph
-import org.jgrapht.graph.DefaultEdge
+import org.edu.stones.presentation.home.components.GraphLayoutData
+import org.edu.stones.presentation.home.components.GraphLayoutEngine
 
 class HomeViewModel(
     private val getAllSubjectsUseCase: GetAllSubjectsUseCase,
@@ -27,14 +26,12 @@ class HomeViewModel(
             homeStateMutableStateFlow.emit(HomeUiState(isLoading = true))
 
             val graph = getAllSubjectsUseCase()
-            val subjectsList = graph.vertexSet().toList().map { subject ->
-                Triple(subject.abreviatura, subject.codigo, (subject.anio - 1) * 2 + determatePeriod(subject.periodo))
-            }
+            val layoutData = GraphLayoutEngine.computeLayout(graph)
 
             homeStateMutableStateFlow.emit(
                 HomeUiState(
                     isLoading = false,
-                    subjectsList = subjectsList
+                    graphLayoutData = layoutData
                 )
             )
         }
@@ -46,14 +43,6 @@ class HomeViewModel(
 
     data class HomeUiState(
         val isLoading: Boolean = false,
-        val subjectsList: List<Triple<String, String, Int>> = emptyList()
+        val graphLayoutData: GraphLayoutData? = null
     )
-
-    private fun determatePeriod(periodo: String): Int {
-        if (periodo == "Primer Cuatrimestre") {
-            return 1
-        } else {
-            return 2
-        }
-    }
 }
