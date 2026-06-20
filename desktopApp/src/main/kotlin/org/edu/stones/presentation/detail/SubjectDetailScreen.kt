@@ -39,12 +39,13 @@ fun SubjectDetailScreen(
             Image(
                 painter = painterResource("images/detailScreen/paperBackground.png"),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier.fillMaxSize()
             )
             Surface(
                 color = Color.Transparent,
                 modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 24.dp)
             ) {
                 when {
                     uiState.isLoading -> {
@@ -145,7 +146,7 @@ private fun GeneralInfoSection(
     ) {
         PropertiesTable(
             subject = subject,
-            modifier = Modifier.weight(2f)
+            modifier = Modifier.weight(2f).padding(horizontal = 8.dp)
         )
 
         Spacer(Modifier.width(16.dp))
@@ -156,7 +157,6 @@ private fun GeneralInfoSection(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .border(1.dp, Color.Gray)
         )
     }
 }
@@ -183,7 +183,7 @@ private fun SubjectImageBox(
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
+                contentScale = ContentScale.Crop,
                 modifier = modifier
             )
         }
@@ -191,7 +191,7 @@ private fun SubjectImageBox(
             Image(
                 painter = painterResource("images/fotoBase.png"),
                 contentDescription = null,
-                contentScale = ContentScale.Crop, // llena el recuadro (recorta sobrante)
+                contentScale = ContentScale.Crop,
                 modifier = modifier
             )
         }
@@ -208,21 +208,19 @@ private fun PropertiesTable(
 ) {
     Box(
         modifier = modifier.border(
-            width = 1.dp,
-            color = Color.Gray
-        )
-    ){
+        width = 1.dp,
+        color = Color.Transparent
+    ),
+        contentAlignment = Alignment.Center){
         Image(
             painter = painterResource("images/detailScreen/dataBackground.png"),
             contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
         )
         Column(
-            modifier = modifier.border(
-                width = 1.dp,
-                color = Color.Gray
-            )
+            modifier = modifier.fillMaxSize()
         ) {
             PropertyRow("Código", subject.codigo)
             PropertyRow("Nombre", subject.nombre)
@@ -266,32 +264,45 @@ private fun RequirementsSection(
     val cursadasText = if (subject.correlativasCursadas.isNullOrBlank()) "Ninguna" else subject.correlativasCursadas
     val aprobadasText = if (subject.correlativasAprobadas.isNullOrBlank()) "Ninguna" else subject.correlativasAprobadas
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(width = 1.dp, color = Color.Black)
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.border(
+            width = 1.dp,
+            color = Color.Transparent
+        ),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "Requisitos para cursar/aprobar:",
-            style = MaterialTheme.typography.titleLarge,
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
         )
-
-        Spacer(Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Cursadas: \"$cursadasText\"",
-                style = MaterialTheme.typography.bodyLarge
+                text = "Requisitos para cursar/aprobar:",
+                style = MaterialTheme.typography.titleLarge.copy(color = Color.Black)
             )
-            Text(
-                text = "Aprobadas: \"$aprobadasText\"",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text(
+                    text = "Cursadas: \"$cursadasText\"",
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                )
+                Text(
+                    text = "Aprobadas: \"$aprobadasText\"",
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                )
+            }
         }
     }
 }
@@ -341,55 +352,75 @@ private fun ApprovalCard(
     enrolled: Int,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.border(
+            width = 1.dp,
+            color = Color.Transparent
+        ),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-
-            Text("% DE APROBACIÓN")
-
-            Spacer(Modifier.height(12.dp))
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(100.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-
-                Canvas(
-                    modifier = Modifier.fillMaxSize()
+                Text(
+                    text = "% DE APROBACIÓN",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(100.dp)
                 ) {
-
-                    drawArc(
-                        color = Color.LightGray,
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(
-                            width = 28f,
-                            cap = StrokeCap.Round
+                    Canvas(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = 0f,
+                            sweepAngle = 360f,
+                            useCenter = false,
+                            style = Stroke(
+                                width = 28f,
+                                cap = StrokeCap.Round
+                            )
                         )
-                    )
-
-                    drawArc(
-                        color = Color(0xFF4CAF50),
-                        startAngle = -90f,
-                        sweepAngle = percentage * 360f,
-                        useCenter = false,
-                        style = Stroke(
-                            width = 28f,
-                            cap = StrokeCap.Round
+                        drawArc(
+                            color = Color(0xFF4CAF50),
+                            startAngle = -90f,
+                            sweepAngle = percentage * 360f,
+                            useCenter = false,
+                            style = Stroke(
+                                width = 28f,
+                                cap = StrokeCap.Round
+                            )
                         )
+                    }
+                    Text(
+                        text = "${(percentage * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
                 }
-
-                Text("${(percentage * 100).toInt()}%")
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "$approved / $enrolled",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            Text("$approved / $enrolled")
         }
     }
 }
@@ -399,58 +430,75 @@ private fun AverageCard(
     average: Double,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.border(
+            width = 1.dp,
+            color = Color.Transparent
+        )
+    ) {
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(), // Usamos fillMaxWidth para que use el espacio asignado por el Box externo
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-
-            Text("PROMEDIO DE NOTAS")
-
-            Spacer(Modifier.height(12.dp))
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(
-                    width = 180.dp,
-                    height = 110.dp
-                )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Canvas(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-
-                    drawArc(
-                        color = Color.LightGray,
-                        startAngle = 180f,
-                        sweepAngle = 180f,
-                        useCenter = false,
-                        style = Stroke(width = 24f)
+                Text(
+                    text = "PROMEDIO DE NOTAS",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(
+                        width = 180.dp,
+                        height = 110.dp
                     )
-
-                    drawArc(
-                        color = Color(0xFF1976D2),
-                        startAngle = 180f,
-                        sweepAngle = ((average / 10f) * 180f).toFloat(),
-                        useCenter = false,
-                        style = Stroke(width = 24f)
+                ) {
+                    Canvas(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        drawArc(
+                            color = Color.LightGray,
+                            startAngle = 180f,
+                            sweepAngle = 180f,
+                            useCenter = false,
+                            style = Stroke(width = 24f)
+                        )
+                        drawArc(
+                            color = Color(0xFF1976D2),
+                            startAngle = 180f,
+                            sweepAngle = ((average / 10f) * 180f).toFloat(),
+                            useCenter = false,
+                            style = Stroke(width = 24f)
+                        )
+                    }
+                    Text(
+                        text = "%.2f".format(average),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
                 }
-
-                Text("%.2f".format(average))
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text("0")
-
-                Spacer(Modifier.weight(1f))
-
-                Text("10")
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "0",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = "10",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                    )
+                }
             }
         }
     }
@@ -462,53 +510,68 @@ private fun AttendanceCard(
     percentage: Float,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.border(
+            width = 1.dp,
+            color = Color.Transparent
+        )
+    ) {
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-
-            Text("PRESENCIALIDAD")
-
-            Spacer(Modifier.height(16.dp))
-
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp)
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(modality)
-
-            Spacer(Modifier.height(8.dp))
-
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp)
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                drawLine(
-                    color = Color.LightGray,
-                    start = Offset(0f, size.height / 2),
-                    end = Offset(size.width, size.height / 2),
-                    strokeWidth = 8f
+                Text(
+                    text = "PRESENCIALIDAD",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-
-                drawLine(
-                    color = Color(0xFF795548),
-                    start = Offset(0f, size.height / 2),
-                    end = Offset(size.width * percentage, size.height / 2),
-                    strokeWidth = 8f
+                Spacer(Modifier.height(16.dp))
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.White
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = modality,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
+                Spacer(Modifier.height(8.dp))
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                ) {
+                    drawLine(
+                        color = Color.LightGray,
+                        start = Offset(0f, size.height / 2),
+                        end = Offset(size.width, size.height / 2),
+                        strokeWidth = 8f
+                    )
+                    drawLine(
+                        color = Color(0xFF795548),
+                        start = Offset(0f, size.height / 2),
+                        end = Offset(size.width * percentage, size.height / 2),
+                        strokeWidth = 8f
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "${(percentage * 100).toInt()}%",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            Text("${(percentage * 100).toInt()}%")
         }
     }
 }
@@ -517,17 +580,36 @@ private fun AttendanceCard(
 private fun LegendSection(
     abbreviation: String
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier.border(
+            width = 1.dp,
+            color = Color.Transparent
+        ),
+        contentAlignment = Alignment.Center
     ) {
-
-        Text(
-            text = "LEYENDA",
-            style = MaterialTheme.typography.titleMedium
+        Image(
+            painter = painterResource("images/detailScreen/dataBackground.png"),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
         )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(abbreviation)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "LEYENDA",
+                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = abbreviation,
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+            )
+        }
     }
 }

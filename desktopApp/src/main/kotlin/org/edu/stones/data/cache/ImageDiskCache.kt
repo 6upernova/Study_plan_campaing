@@ -7,7 +7,7 @@ import java.security.MessageDigest
 
 class ImageDiskCache(
     private val cacheDir: Path =
-        Paths.get(System.getProperty("user.home"), ".study_plan", "cache"),
+        Paths.get(System.getProperty("user.dir"), ".cache", "images"),
 ) {
     fun cacheKey(prompt: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(prompt.toByteArray())
