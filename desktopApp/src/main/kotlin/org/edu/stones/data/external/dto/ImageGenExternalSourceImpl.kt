@@ -14,25 +14,35 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import org.edu.stones.data.external.ImageGenExternalSource
 
-class ImageGenExternalSourceImpl : ImageGenExternalSource {
 
-    private val client = createImageHttpClient()
+
+class ImageGenExternalSourceImpl(
+    private val clientProvider: () -> HttpClient = { createImageHttpClient() },
+    // Una sola llamada de red (status + bytes). Inyectable para poder testear la
+    // logica de reintentos sin tocar la red.
+    private val bytesProvider: suspend (HttpClient, String) -> Pair<HttpStatusCode, ByteArray> =
+        { client, prompt ->
+            val response = client.get {
+                url {
+                    path("prompt", prompt)
+                    parameters.append("width", "512")
+                    parameters.append("height", "512")
+                    parameters.append("nologo", "true")
+                    parameters.append("model", "turbo")
+                }
+            }
+            response.status to response.readRawBytes()
+        },
+) : ImageGenExternalSource {
+
+    private val client by lazy { clientProvider() }
     private val semaphore = Semaphore(1)
 
     override suspend fun generate(prompt: String): ByteArray? {
         for (attempt in 0 until 3) {
             try {
                 val (status, bytes) = semaphore.withPermit {
-                    val response = client.get {
-                        url {
-                            path("prompt", prompt)
-                            parameters.append("width", "512")
-                            parameters.append("height", "512")
-                            parameters.append("nologo", "true")
-                            parameters.append("model", "turbo")
-                        }
-                    }
-                    response.status to response.readRawBytes()
+                    bytesProvider(client, prompt)
                 }
                 when {
                     status == HttpStatusCode.TooManyRequests -> {

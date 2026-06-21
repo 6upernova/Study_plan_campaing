@@ -30,7 +30,7 @@ class SubjectsRepositoryImpl(
         return graph
     }
 
-    private fun buildGraph(subjectsList: List<Subject>): DefaultDirectedGraph<Subject, DefaultEdge> {
+    internal fun buildGraph(subjectsList: List<Subject>): DefaultDirectedGraph<Subject, DefaultEdge> {
         val graph = DefaultDirectedGraph<Subject, DefaultEdge>(DefaultEdge::class.java)
 
         val subjectMap = subjectsList.associateBy { it.codigo }
