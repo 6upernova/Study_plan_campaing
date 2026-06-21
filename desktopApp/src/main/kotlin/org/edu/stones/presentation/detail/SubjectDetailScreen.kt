@@ -18,12 +18,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.presentation.AppTypography
 import org.jetbrains.skia.Image as SkiaImage
 
 
@@ -32,7 +35,9 @@ fun SubjectDetailScreen(
     uiState: DetailViewModel.DetailUiState,
     modifier: Modifier = Modifier
 ) {
-    MaterialTheme {
+    MaterialTheme(
+        typography = AppTypography
+    ) {
         Box(
             modifier = modifier.fillMaxSize()
         ) {
@@ -54,7 +59,9 @@ fun SubjectDetailScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Cargando materia..."
+                                text = "Cargando materia...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 24.sp
                             )
                         }
                     }
@@ -170,34 +177,54 @@ private fun SubjectImageBox(
     isImageLoading: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val overlayPainter = painterResource("images/detailScreen/SubjectBorderIcon.png")
+
     val bitmap: ImageBitmap? = remember(imageBytes) {
         imageBytes?.let { decodeImage(it) }
     }
-    when {
-        isImageLoading -> {
-            Box(
-                modifier = modifier,
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            isImageLoading -> {
+                Box(
+                    modifier = modifier,
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            bitmap != null -> {
+                Image(
+                    bitmap = bitmap,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = modifier
+                )
+            }
+
+            else -> {
+                Image(
+                    painter = painterResource("images/detailScreen/fotoBase.png"),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = modifier
+                )
             }
         }
-        bitmap != null -> {
-            Image(
-                bitmap = bitmap,
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = modifier
-            )
-        }
-        else -> {
-            Image(
-                painter = painterResource("images/fotoBase.png"),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = modifier
-            )
-        }
+        Image(
+            painter = overlayPainter,
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer(
+                    scaleX = 1.05f,
+                    scaleY = 1.05f
+                )
+        )
     }
 }
 
@@ -243,20 +270,33 @@ private fun PropertyRow(
     label: String,
     value: String
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = label,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = value,
-            modifier = Modifier.weight(1f)
-        )
+    val borderColor = Color(0xFF8C7445)
+    Box(
+        Modifier.border(
+            width = 1.dp,
+            color = borderColor
+        ))
+        {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            Text(
+                text = label,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f).absolutePadding(3.dp),
+            )
+            VerticalDivider(
+                modifier = Modifier.fillMaxHeight(),
+                color = borderColor,
+                thickness = 1.dp
+            )
+            Text(
+                text = value,
+                modifier = Modifier.weight(1f).absolutePadding(3.dp)
+            )
+        }
     }
 }
 
@@ -319,7 +359,6 @@ private fun StatisticsSection(
     } else {
         0f
     }
-
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {

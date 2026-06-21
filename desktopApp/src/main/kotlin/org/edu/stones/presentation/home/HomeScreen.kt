@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -36,10 +37,13 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.edu.stones.di.SubjectDependencyInjector
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.presentation.AppTypography
+
 import org.edu.stones.presentation.detail.DetailViewModel
 import org.edu.stones.presentation.home.components.DirectedGraphCanvas
 import org.edu.stones.presentation.home.components.GraphBackground
 import org.edu.stones.presentation.detail.SubjectDetailScreen
+import java.awt.Dimension
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +56,9 @@ fun HomeScreen(
         viewModel.getAllSubjects()
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        typography = AppTypography
+    ) {
         val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
         if (uiState.isLoading) {
             CircularProgressIndicator()
@@ -111,11 +117,15 @@ fun SubjectDetailWindow(
     subjectCode: String,
     onClose: () -> Unit,
 ) {
+
     Window(
         onCloseRequest = onClose,
         title = subjectCode,
-        state = rememberWindowState(width = 900.dp, height = 700.dp)
+        state = rememberWindowState(width = 900.dp,height = 850.dp)
     ) {
+        LaunchedEffect(window) {
+            window.minimumSize = Dimension(900, 850)
+        }
         MaterialTheme {
             Surface {
                 val detailViewModel = SubjectDependencyInjector.getDetailViewModel(subjectCode)

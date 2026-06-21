@@ -3,17 +3,6 @@ package org.edu.stones.domain.usecase
 import kotlinx.coroutines.delay
 import org.edu.stones.domain.entity.Subject
 
-/**
- * Worker que va generando (o recuperando de cache) la imagen de cada materia de
- * forma continua: recorre las pendientes una y otra vez hasta que todas tengan
- * imagen. Pensado para correr en un hilo/corrutina de fondo.
- *
- * - Reutiliza [GenerateSubjectImageUseCase], que es cache-aside: si ya esta en
- *   cache no llama a la API (por eso es resumible entre arranques).
- * - Es SECUENCIAL con una espera entre pedidos, porque Pollinations anonimo solo
- *   permite 1 pedido por IP a la vez (mas paralelo => 429).
- * - Reintenta las que fallan en las siguientes pasadas, hasta [maxAttemptsPerSubject].
- */
 class PreloadSubjectImagesUseCaseImpl(
     private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
     private val delayBetweenRequestsMs: Long = 1000,
