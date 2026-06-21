@@ -4,7 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
-import io.ktor.client.statement.readRawBytes
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
@@ -12,59 +12,58 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import org.edu.stones.data.external.ImageGenExternalSource
+import org.edu.stones.data.external.LegendExternalSource
 
-class PollinationsImageSource : ImageGenExternalSource {
+class LegendExternalSourceImpl : LegendExternalSource {
 
-    private val client = createImageHttpClient()
+    private val client = createLegendHttpClient()
+    // Pollinations free tier: max 1 request simultáneo por IP
     private val semaphore = Semaphore(1)
 
-    override suspend fun generate(prompt: String): ByteArray? {
+    override suspend fun generate(prompt: String): String? {
         for (attempt in 0 until 3) {
             try {
-                val (status, bytes) = semaphore.withPermit {
+                val (status, body) = semaphore.withPermit {
                     val response = client.get {
                         url {
-                            path("prompt", prompt)
-                            parameters.append("width", "512")
-                            parameters.append("height", "512")
-                            parameters.append("nologo", "true")
-                            parameters.append("model", "turbo")
+                            path(prompt)
+                            parameters.append("model", "openai")
+                            parameters.append("seed", "42")
                         }
                     }
-                    response.status to response.readRawBytes()
+                    response.status to response.bodyAsText()
                 }
                 when {
                     status == HttpStatusCode.TooManyRequests -> {
                         val waitSec = (attempt + 1) * 15
-                        println("Imagen: 429 recibido, reintentando en ${waitSec}s (intento ${attempt + 1}/3)")
+                        println("Leyenda: 429 recibido, reintentando en ${waitSec}s (intento ${attempt + 1}/3)")
                         delay(waitSec * 1_000L)
                     }
                     status.value in 200..299 ->
-                        return bytes.takeIf { it.isNotEmpty() }
+                        return body.trim().takeIf { it.isNotEmpty() }
                     else -> {
-                        println("Error generando imagen: HTTP ${status.value}")
+                        println("Error generando leyenda: HTTP ${status.value}")
                         return null
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                println("Error generando imagen: ${e.message}")
+                println("Error generando leyenda: ${e.message}")
                 return null
             }
         }
-        println("Imagen: 3 intentos fallidos, se omite esta materia")
+        println("Leyenda: 3 intentos fallidos, se omite esta materia")
         return null
     }
 }
 
-private fun createImageHttpClient(): HttpClient =
+private fun createLegendHttpClient(): HttpClient =
     HttpClient {
         install(DefaultRequest) {
             url {
                 protocol = URLProtocol.HTTPS
-                host = "image.pollinations.ai"
+                host = "text.pollinations.ai"
             }
         }
         install(HttpTimeout) {

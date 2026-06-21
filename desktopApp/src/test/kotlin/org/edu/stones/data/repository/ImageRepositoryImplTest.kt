@@ -1,7 +1,7 @@
 package org.edu.stones.data.repository
 
 import kotlinx.coroutines.test.runTest
-import org.edu.stones.data.cache.ImageDiskCache
+import org.edu.stones.data.local.image.ImageLocalDataSourceImpl
 import org.edu.stones.data.external.ImageGenExternalSource
 import java.nio.file.Files
 import java.nio.file.Path
@@ -26,12 +26,12 @@ private class CountingSource(private val bytes: ByteArray?) : ImageGenExternalSo
 class ImageRepositoryImplTest {
 
     private lateinit var tempDir: Path
-    private lateinit var cache: ImageDiskCache
+    private lateinit var cache: ImageLocalDataSourceImpl
 
     @BeforeTest
     fun setup() {
         tempDir = Files.createTempDirectory("image-cache-test")
-        cache = ImageDiskCache(cacheDir = tempDir)
+        cache = ImageLocalDataSourceImpl(cacheDir = tempDir)
     }
 
     @AfterTest

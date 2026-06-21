@@ -2,13 +2,13 @@ package org.edu.stones.data.repository
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.edu.stones.data.cache.ImageDiskCache
+import org.edu.stones.data.local.image.ImageLocalDataSource
 import org.edu.stones.data.external.ImageGenExternalSource
 import org.edu.stones.domain.repository.ImageRepository
 
 class ImageRepositoryImpl(
     private val source: ImageGenExternalSource,
-    private val diskCache: ImageDiskCache,
+    private val diskCache: ImageLocalDataSource,
 ) : ImageRepository {
 
     private val memory = mutableMapOf<String, ByteArray>()
@@ -21,15 +21,16 @@ class ImageRepositoryImpl(
         mutex.withLock { memory[key] }?.let { return it }
 
         // 2. disco -> calienta memoria
-        diskCache.get(key)?.let { fromDisk ->
+        diskCache.get(key).getOrNull()?.let { fromDisk ->
             mutex.withLock { memory[key] = fromDisk }
             return fromDisk
         }
 
         // 3. red -> escribe disco + memoria (solo si exitoso)
         val generated = source.generate(prompt) ?: return null
-        diskCache.put(key, generated)
-        mutex.withLock { memory[key] = generated }
+        diskCache.put(key, generated).onSuccess {
+            mutex.withLock { memory[key] = generated }
+        }
         return generated
     }
 }

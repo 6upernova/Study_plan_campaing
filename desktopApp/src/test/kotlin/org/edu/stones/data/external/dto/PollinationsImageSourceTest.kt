@@ -14,7 +14,7 @@ class PollinationsImageSourceTest {
     @Test
     fun `devuelve los bytes cuando la respuesta no esta vacia`() = runTest {
         val expected = byteArrayOf(1, 2, 3, 4)
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, _ -> expected },
         )
@@ -26,7 +26,7 @@ class PollinationsImageSourceTest {
 
     @Test
     fun `devuelve null cuando el provider lanza excepcion`() = runTest {
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, _ -> throw RuntimeException("timeout") },
         )
@@ -36,7 +36,7 @@ class PollinationsImageSourceTest {
 
     @Test
     fun `devuelve null cuando la respuesta es vacia`() = runTest {
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, _ -> ByteArray(0) },
         )
@@ -47,7 +47,7 @@ class PollinationsImageSourceTest {
     @Test
     fun `pasa el prompt recibido al provider`() = runTest {
         var capturado: String? = null
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, prompt -> capturado = prompt; byteArrayOf(9) },
         )

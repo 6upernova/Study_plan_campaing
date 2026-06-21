@@ -1,8 +1,8 @@
 package org.edu.stones.data.local.mapper
 
-import org.edu.stones.data.local.graph.CachedEdge
-import org.edu.stones.data.local.graph.CachedGraph
-import org.edu.stones.data.local.graph.CachedVertex
+import org.edu.stones.data.local.subjects.CachedEdge
+import org.edu.stones.data.local.subjects.CachedGraph
+import org.edu.stones.data.local.subjects.CachedVertex
 import org.edu.stones.domain.entity.Subject
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge

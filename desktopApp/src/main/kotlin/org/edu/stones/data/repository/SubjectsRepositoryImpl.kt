@@ -1,8 +1,8 @@
 package org.edu.stones.data.repository
 
 import org.edu.stones.data.external.broker.SubjectsBroker
-import org.edu.stones.data.local.SubjectLocalDataSource
-import org.edu.stones.data.local.graph.CacheConstants
+import org.edu.stones.data.local.subjects.SubjectLocalDataSource
+import org.edu.stones.data.local.subjects.CacheConstants
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toCachedGraph
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toDomainGraph
 import org.edu.stones.domain.entity.Subject

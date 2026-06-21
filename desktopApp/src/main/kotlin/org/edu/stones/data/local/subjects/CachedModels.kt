@@ -1,4 +1,4 @@
-package org.edu.stones.data.local.graph
+package org.edu.stones.data.local.subjects
 
 import kotlinx.serialization.Serializable
 

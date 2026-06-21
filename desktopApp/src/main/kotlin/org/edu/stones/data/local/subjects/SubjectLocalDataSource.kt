@@ -1,6 +1,4 @@
-package org.edu.stones.data.local
-
-import org.edu.stones.data.local.graph.CachedGraph
+package org.edu.stones.data.local.subjects
 
 interface SubjectLocalDataSource {
     suspend fun saveGraph(graph: CachedGraph): Result<Unit>

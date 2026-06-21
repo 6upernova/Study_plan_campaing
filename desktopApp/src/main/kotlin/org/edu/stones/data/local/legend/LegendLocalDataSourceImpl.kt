@@ -1,28 +1,27 @@
-package org.edu.stones.data.cache
+package org.edu.stones.data.local.legend
 
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 
-class LegendDiskCache(
+class LegendLocalDataSourceImpl(
     private val cacheDir: Path =
         Paths.get(System.getProperty("user.dir"), ".cache", "legends"),
-) {
-    fun cacheKey(prompt: String): String {
+) : LegendLocalDataSource {
+
+    override suspend fun cacheKey(prompt: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(prompt.toByteArray())
         return digest.joinToString("") { "%02x".format(it) }
     }
 
-    fun get(key: String): String? = runCatching {
+    override suspend fun get(key: String): Result<String?> = runCatching {
         val file = cacheDir.resolve("$key.txt")
         if (Files.exists(file)) Files.readString(file).takeIf { it.isNotBlank() } else null
-    }.getOrNull()
+    }
 
-    fun put(key: String, legend: String) {
-        runCatching {
-            Files.createDirectories(cacheDir)
-            Files.writeString(cacheDir.resolve("$key.txt"), legend)
-        }
+    override suspend fun put(key: String, legend: String): Result<Unit> = runCatching {
+        Files.createDirectories(cacheDir)
+        Files.writeString(cacheDir.resolve("$key.txt"), legend)
     }
 }

@@ -17,7 +17,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.edu.stones.data.external.LegendExternalSource
@@ -34,7 +33,7 @@ private data class ChatResponse(val choices: List<Choice>)
 @Serializable
 private data class Choice(val message: ChatMessage)
 
-class PollinationsOpenAILegendSource : LegendExternalSource {
+class OpenAiLegendExternalSourceImpl : LegendExternalSource {
 
     private val json = Json { ignoreUnknownKeys = true }
     private val client = createOpenAIHttpClient(json)
