@@ -92,7 +92,10 @@ fun SubjectDetailScreen(
 
                             Spacer(Modifier.height(8.dp))
 
-                            LegendSection(subject.abreviatura)
+                            LegendSection(
+                                legend = uiState.legend,
+                                isLegendLoading = uiState.isLegendLoading
+                            )
                         }
                     }
 
@@ -578,7 +581,8 @@ private fun AttendanceCard(
 
 @Composable
 private fun LegendSection(
-    abbreviation: String
+    legend: String?,
+    isLegendLoading: Boolean
 ) {
     Box(
         modifier = Modifier.border(
@@ -591,8 +595,7 @@ private fun LegendSection(
             painter = painterResource("images/detailScreen/dataBackground.png"),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
+            modifier = Modifier.matchParentSize()
         )
         Column(
             modifier = Modifier
@@ -606,10 +609,18 @@ private fun LegendSection(
                 style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
             )
             Spacer(Modifier.height(8.dp))
-            Text(
-                text = abbreviation,
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-            )
+            when {
+                isLegendLoading -> CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                legend != null -> Text(
+                    text = legend,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                else -> Text(
+                    text = "—",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
+                )
+            }
         }
     }
 }

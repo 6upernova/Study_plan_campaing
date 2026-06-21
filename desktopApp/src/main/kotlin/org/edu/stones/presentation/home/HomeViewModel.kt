@@ -7,6 +7,7 @@ import org.edu.stones.domain.usecase.GetAllSubjectsUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
 
 import org.edu.stones.domain.usecase.PreloadSubjectImagesUseCase
+import org.edu.stones.domain.usecase.PreloadSubjectLegendsUseCase
 import kotlinx.coroutines.flow.Flow
 
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ class HomeViewModel(
     private val getAllSubjectsUseCase: GetAllSubjectsUseCase,
     private val getSubjectsUseCase: GetSubjectDetailUseCase,
     private val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase,
+    private val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase,
 ) : ViewModel() {
 
     private val homeStateMutableStateFlow = MutableStateFlow(HomeUiState())
@@ -47,9 +49,8 @@ class HomeViewModel(
                 )
             )
 
-            // Pre-genera todas las imagenes en segundo plano y las deja en cache.
-            // No bloquea la UI; el detalle luego las lee del cache al instante.
             launch { preloadSubjectImagesUseCase(subjects) }
+            launch { preloadSubjectLegendsUseCase(subjects) }
         }
     }
 

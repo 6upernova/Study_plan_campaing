@@ -9,10 +9,12 @@ import kotlinx.coroutines.launch
 import org.edu.stones.domain.entity.Subject
 import org.edu.stones.domain.usecase.GenerateSubjectImageUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
+import org.edu.stones.domain.usecase.GetSubjectLegendUseCase
 
 class DetailViewModel(
     private val getSubjectDetailUseCase: GetSubjectDetailUseCase,
     private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
+    private val getSubjectLegendUseCase: GetSubjectLegendUseCase,
 ) : ViewModel() {
 
     private val detailUiState = MutableStateFlow(DetailUiState())
@@ -35,7 +37,19 @@ class DetailViewModel(
 
             if (subject != null) {
                 loadSubjectImage(subject)
+                loadSubjectLegend(subject)
             }
+        }
+    }
+
+    private fun loadSubjectLegend(subject: Subject) {
+        viewModelScope.launch {
+            detailUiState.value = detailUiState.value.copy(isLegendLoading = true)
+            val legend = getSubjectLegendUseCase(subject)
+            detailUiState.value = detailUiState.value.copy(
+                isLegendLoading = false,
+                legend = legend
+            )
         }
     }
 
@@ -55,6 +69,8 @@ class DetailViewModel(
         val subject: Subject? = null,
         val imageBytes: ByteArray? = null,
         val isImageLoading: Boolean = false,
+        val legend: String? = null,
+        val isLegendLoading: Boolean = false,
     )
 
     fun getDetail() {
