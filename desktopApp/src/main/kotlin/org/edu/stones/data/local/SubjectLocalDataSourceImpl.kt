@@ -8,7 +8,9 @@ import kotlinx.serialization.serializer
 import java.io.File
 import java.security.MessageDigest
 
-class SubjectLocalDataSourceImpl : SubjectLocalDataSource {
+class SubjectLocalDataSourceImpl(
+    private val baseDir: File = File(System.getProperty("user.dir")),
+) : SubjectLocalDataSource {
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -16,8 +18,7 @@ class SubjectLocalDataSourceImpl : SubjectLocalDataSource {
     }
 
     private val cacheFile: File by lazy {
-        val projectRoot = File(System.getProperty("user.dir"))
-        val cacheDir = File(projectRoot, ".cache")
+        val cacheDir = File(baseDir, ".cache")
         if (!cacheDir.exists()) {
             cacheDir.mkdirs()
         }
