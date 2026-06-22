@@ -13,8 +13,8 @@ data class CachedVertex(
     val inscriptos: Int,
     val presencialidad: String,
     val cantAprobados: Int,
-    val correlativasCursadas: String?,
-    val correlativasAprobadas: String?,
+    val correlativasCursadas: String,
+    val correlativasAprobadas: String,
     val abreviatura: String
 )
 

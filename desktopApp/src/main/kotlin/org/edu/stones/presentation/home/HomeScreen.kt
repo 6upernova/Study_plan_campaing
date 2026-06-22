@@ -141,7 +141,8 @@ fun SubjectDetailWindow(
 
                 SubjectDetailScreen(
                     uiState = uiState,
-                    modifier = Modifier
+                    modifier = Modifier,
+                    viewModel = detailViewModel
                 )
             }
         }

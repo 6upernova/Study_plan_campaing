@@ -4,12 +4,16 @@ package org.edu.stones.presentation.detail
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,16 +29,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.edu.stones.domain.entity.Subject
 import org.edu.stones.presentation.AppTypography
+import org.edu.stones.presentation.detail.DetailViewModel.DetailUiState
+import org.edu.stones.presentation.detail.DetailViewModel
 import org.jetbrains.skia.Image as SkiaImage
 
 
 @Composable
 fun SubjectDetailScreen(
     uiState: DetailViewModel.DetailUiState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DetailViewModel
 ) {
+
     MaterialTheme(
         typography = AppTypography
     ) {
@@ -87,7 +96,7 @@ fun SubjectDetailScreen(
 
                             Spacer(Modifier.height(8.dp))
 
-                            RequirementsSection(subject)
+                            RequirementsSection(subject,viewModel, uiState)
 
                             Spacer(Modifier.height(8.dp))
 
@@ -302,10 +311,15 @@ private fun PropertyRow(
 
 @Composable
 private fun RequirementsSection(
-    subject: Subject
+    subject: Subject,
+    viewModel: DetailViewModel,
+    uiState: DetailUiState
 ) {
-    val cursadasText = if (subject.correlativasCursadas.isNullOrBlank()) "Ninguna" else subject.correlativasCursadas
-    val aprobadasText = if (subject.correlativasAprobadas.isNullOrBlank()) "Ninguna" else subject.correlativasAprobadas
+
+    LaunchedEffect(Unit){
+        viewModel.getAprovNames(subject.correlativasAprobadas)
+        viewModel.getCourseNames(subject.correlativasCursadas)
+    }
 
     Box(
         modifier = Modifier.border(
@@ -338,11 +352,11 @@ private fun RequirementsSection(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
-                    text = "Cursadas: \"$cursadasText\"",
+                    text = "Cursadas: \"${uiState.courseNames}\"",
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
                 )
                 Text(
-                    text = "Aprobadas: \"$aprobadasText\"",
+                    text = "Aprobadas: \"${uiState.aprovNames}\"",
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
                 )
             }
@@ -367,14 +381,14 @@ private fun StatisticsSection(
             percentage = approvalPercentage,
             approved = subject.cantAprobados,
             enrolled = subject.inscriptos,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
 
         AverageCard(
             average = subject.notasPromedio,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
@@ -382,7 +396,7 @@ private fun StatisticsSection(
         AttendanceCard(
             modality = subject.presencialidad,
             percentage = if (subject.presencialidad.equals("Presencial", true)) 1f else 0f,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
     }
 }
@@ -474,9 +488,9 @@ private fun AverageCard(
 ) {
     Box(
         modifier = modifier.border(
-            width = 1.dp,
+            width = 3.dp,
             color = Color.Transparent
-        )
+        ),contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource("images/detailScreen/dataBackground.png"),
@@ -486,12 +500,13 @@ private fun AverageCard(
                 .matchParentSize()
         )
         Card(
-            modifier = Modifier.fillMaxWidth(), // Usamos fillMaxWidth para que use el espacio asignado por el Box externo
+            modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "PROMEDIO DE NOTAS",
@@ -499,14 +514,12 @@ private fun AverageCard(
                 )
                 Spacer(Modifier.height(12.dp))
                 Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(
-                        width = 180.dp,
-                        height = 110.dp
-                    )
+                    modifier = Modifier
+                        .size(width = 180.dp, height = 100.dp)
                 ) {
                     Canvas(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                     ) {
                         drawArc(
                             color = Color.LightGray,
@@ -515,6 +528,7 @@ private fun AverageCard(
                             useCenter = false,
                             style = Stroke(width = 24f)
                         )
+
                         drawArc(
                             color = Color(0xFF1976D2),
                             startAngle = 180f,
@@ -523,21 +537,24 @@ private fun AverageCard(
                             style = Stroke(width = 24f)
                         )
                     }
+
                     Text(
                         text = "%.2f".format(average),
+                        modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+
                     Text(
                         text = "0",
+                        modifier = Modifier
+                            .align(Alignment.BottomStart).offset(y = (-30).dp),
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
-                    Spacer(Modifier.weight(1f))
+
                     Text(
                         text = "10",
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd).offset(y = (-30).dp),
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
                 }
@@ -556,7 +573,7 @@ private fun AttendanceCard(
         modifier = modifier.border(
             width = 1.dp,
             color = Color.Transparent
-        )
+        ), contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource("images/detailScreen/dataBackground.png"),
@@ -571,7 +588,8 @@ private fun AttendanceCard(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "PRESENCIALIDAD",
