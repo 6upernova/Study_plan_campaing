@@ -1,6 +1,8 @@
 package org.edu.stones.presentation.home.components
 
 import org.edu.stones.domain.entity.Subject
+import org.edu.stones.presentation.home.config.GraphConfig
+import org.edu.stones.presentation.home.config.GraphConfigDefaults
 import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.traverse.TopologicalOrderIterator
@@ -12,26 +14,21 @@ import kotlin.math.roundToInt
 
 object GraphLayoutEngine {
 
-    private const val LAYER_SPACING = 280f
-    private const val BASE_ROW_SPACING = 200f
-    private const val MIN_VERTICAL_SPACING = 100f
-    private const val MIN_SPRITE_SIZE = 70f
-    private const val MAX_SPRITE_SIZE = 100f
-    private const val PADDING_LEFT = 40f
-    private const val PADDING_TOP = 10f
-    private const val BUNDLE_SPACING = 10f
-    private const val MAX_CROSSING_ITERATIONS = 6
-    private const val VIEWPORT_HEIGHT = 700f
+    fun getDefaultSpriteSize(config: GraphConfig = GraphConfigDefaults.Default): Float = 120f
 
-    fun getDefaultSpriteSize(): Float = (BASE_ROW_SPACING * 0.7f).coerceIn(MIN_SPRITE_SIZE, MAX_SPRITE_SIZE)
-
-    fun computeLayout(graph: DefaultDirectedGraph<Subject, DefaultEdge>): GraphLayoutData {
+    fun computeLayout(
+        graph: DefaultDirectedGraph<Subject, DefaultEdge>,
+        availableWidth: Float,
+        availableHeight: Float,
+        density: Float,
+        config: GraphConfig = GraphConfigDefaults.Default
+    ): GraphLayoutData {
         if (graph.vertexSet().isEmpty()) return GraphLayoutData(emptyList(), emptyList())
 
         val subjectList = graph.vertexSet().toList()
         val subjectSet = subjectList.toSet()
 
-        val layerMap = assignLayers(graph, subjectList)
+        val layerMap = assignLayers(graph, subjectList, config)
         val dummyVertices = mutableListOf<DummyVertex>()
         val edgeChains = insertDummyVertices(graph, subjectList, layerMap, dummyVertices)
 
@@ -64,26 +61,48 @@ object GraphLayoutEngine {
             predecessorMap.getOrPut(edge.target) { mutableListOf() }.add(edge.source)
         }
 
-        minimizeCrossings(layers, allEdges, successorMap, predecessorMap)
+        minimizeCrossings(layers, allEdges, successorMap, predecessorMap, config)
 
         val finalNodeMap = mutableMapOf<String, GraphNode>()
         val nodePositions = mutableMapOf<Any, Offset>()
 
         val layerHeights = layers.mapValues { (_, vertices) -> vertices.size }
         val maxLayerHeight = layerHeights.values.maxOrNull() ?: 1
-        val availableHeight = VIEWPORT_HEIGHT - 2 * PADDING_TOP
+
+        val layerSpacing = (availableWidth * config.layerSpacingPercent)
+            .coerceIn(config.strokeWidthMinDp * density * 90f, config.strokeWidthMaxDp * density * 40f)
+        val baseRowSpacing = availableHeight * config.baseRowSpacingPercent
+        val minVerticalSpacing = max(availableHeight * config.minVerticalSpacingPercent, config.strokeWidthMinDp * density * 40f)
+        val paddingLeft = availableWidth * config.paddingLeftPercent
+        val paddingTop = availableHeight * config.paddingTopPercent
+        val bundleSpacing = max(layerSpacing * config.bundleSpacingPercent, config.strokeWidthMinDp * density * 4f)
+
         val rowSpacing = if (maxLayerHeight > 1) {
-            max(MIN_VERTICAL_SPACING, availableHeight / maxLayerHeight)
+            max(minVerticalSpacing, (availableHeight - 2 * paddingTop) / maxLayerHeight)
         } else {
-            BASE_ROW_SPACING
+            baseRowSpacing
         }
-        val spriteSize = (rowSpacing * 0.7f).coerceIn(MIN_SPRITE_SIZE, MAX_SPRITE_SIZE)
+
+        val spriteSize = (rowSpacing * config.spriteSizeFactor).coerceIn(
+            availableHeight * config.spriteSizeMinPercent * density,
+            availableHeight * config.spriteSizeMaxPercent * density
+        )
+
+        val strokeWidth = (spriteSize * config.strokeWidthFactor).coerceIn(
+            config.strokeWidthMinDp * density,
+            config.strokeWidthMaxDp * density
+        )
+
+        val fontSize = (spriteSize * config.fontSizeFactor).coerceIn(
+            config.fontSizeMinDp * density,
+            config.fontSizeMaxDp * density
+        )
 
         layers.forEach { (layer, vertices) ->
-            val x = PADDING_LEFT + layer * LAYER_SPACING
+            val x = paddingLeft + layer * layerSpacing
             val yOffset = ((maxLayerHeight - vertices.size) * rowSpacing) / 2f
             vertices.forEachIndexed { pos, vertex ->
-                val y = PADDING_TOP + yOffset + pos * rowSpacing
+                val y = paddingTop + yOffset + pos * rowSpacing
                 nodePositions[vertex] = Offset(x, y)
                 if (vertex is Subject) {
                     val period = if (vertex.periodo == "Primer Cuatrimestre") 1 else 2
@@ -95,7 +114,9 @@ object GraphLayoutEngine {
                         positionInLayer = pos,
                         x = x,
                         y = y,
-                        spriteSize = spriteSize
+                        spriteSize = spriteSize,
+                        strokeWidth = strokeWidth,
+                        fontSize = fontSize
                     )
                 }
             }
@@ -120,7 +141,7 @@ object GraphLayoutEngine {
                                 val dummy = chain[i] as DummyVertex
                                 waypoints.add(nodePositions[dummy] ?: Offset(0f, 0f))
                             }
-                            val edge = makeRoutingEdge(nodeU, nodeV, waypoints, bundleIndex(u, v, allEdges))
+                            val edge = makeRoutingEdge(nodeU, nodeV, waypoints, bundleIndex(u, v, allEdges), bundleSpacing)
                             edgesList.add(edge)
                         } else {
                             edgesList.add(makeDirectEdge(nodeU, nodeV))
@@ -136,12 +157,10 @@ object GraphLayoutEngine {
         )
     }
 
-    fun getNodeWidth(): Float = getDefaultSpriteSize()
-    fun getNodeHeight(): Float = getDefaultSpriteSize()
-
     private fun assignLayers(
         graph: DefaultDirectedGraph<Subject, DefaultEdge>,
-        subjects: List<Subject>
+        subjects: List<Subject>,
+        config: GraphConfig
     ): Map<Subject, Int> {
         val layerBySubject = mutableMapOf<Subject, Int>()
         val inDegree = mutableMapOf<Subject, Int>()
@@ -152,7 +171,7 @@ object GraphLayoutEngine {
         iterator.forEachRemaining { topologicalOrder.add(it as Subject) }
 
         topologicalOrder.forEach { v ->
-            val domainLayer = (v.anio - 1) * 2 + (if (v.periodo == "Primer Cuatrimestre") 1 else 2) - 1
+            val domainLayer = (v.anio - 1) * config.domainLayerPeriodWeight + (if (v.periodo == "Primer Cuatrimestre") 1 else 2) - 1
             var topologicalLayer = 0
             graph.incomingEdgesOf(v).forEach { edge ->
                 val u = graph.getEdgeSource(edge) as Subject
@@ -211,12 +230,13 @@ object GraphLayoutEngine {
         layers: MutableMap<Int, MutableList<Any>>,
         edges: List<AnyEdge>,
         successors: Map<Any, List<Any>>,
-        predecessors: Map<Any, List<Any>>
+        predecessors: Map<Any, List<Any>>,
+        config: GraphConfig
     ) {
         var bestOrder = layers.mapValues { it.value.toList() }
         var bestCrossings = countCrossings(layers, edges)
 
-        repeat(MAX_CROSSING_ITERATIONS) { iteration ->
+        repeat(config.maxCrossingIterations) { iteration ->
             if (iteration % 2 == 0) {
                 val sortedLayers = layers.keys.sorted()
                 for (i in 1 until sortedLayers.size) {
@@ -320,7 +340,8 @@ object GraphLayoutEngine {
             fromX = source.x + source.spriteSize / 2,
             fromY = source.y + source.spriteSize / 2,
             toX = target.x + target.spriteSize / 2,
-            toY = target.y + target.spriteSize / 2
+            toY = target.y + target.spriteSize / 2,
+            strokeWidth = source.strokeWidth
         )
     }
 
@@ -328,14 +349,15 @@ object GraphLayoutEngine {
         source: GraphNode,
         target: GraphNode,
         waypoints: List<Offset>,
-        bundleIdx: Int
+        bundleIdx: Int,
+        bundleSpacing: Float
     ): GraphEdge {
         val fromX = source.x + source.spriteSize / 2
         val fromY = source.y + source.spriteSize / 2
         val toX = target.x + target.spriteSize / 2
         val toY = target.y + target.spriteSize / 2
 
-        val offset = bundleIdx * BUNDLE_SPACING
+        val offset = bundleIdx * bundleSpacing
         val adjustedWaypoints = waypoints.map { wp ->
             Offset(wp.x + offset, wp.y)
         }
@@ -347,7 +369,8 @@ object GraphLayoutEngine {
             fromY = fromY,
             toX = toX,
             toY = toY,
-            waypoints = adjustedWaypoints
+            waypoints = adjustedWaypoints,
+            strokeWidth = source.strokeWidth
         )
     }
 

@@ -26,11 +26,14 @@ import org.edu.stones.data.local.subjects.SubjectLocalDataSourceImpl
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCaseImpl
 import org.edu.stones.presentation.detail.DetailViewModel
+import org.edu.stones.presentation.home.config.GraphConfig
+import org.edu.stones.presentation.home.config.GraphConfigDefaults
 import kotlin.collections.List
 
 object SubjectDependencyInjector {
 
     private val localDataSource: SubjectLocalDataSource = SubjectLocalDataSourceImpl()
+    val graphConfig: GraphConfig = GraphConfigDefaults.Default
 
     private val sources: List<SubjectDetailExternalSource> = listOf(
         GoogleScriptSubjectExternalSource()
@@ -60,7 +63,8 @@ object SubjectDependencyInjector {
                 getAllSubjectsUseCase = GetAllSubjectsUseCaseImpl(subjectRepository),
                 getSubjectsUseCase = GetSubjectDetailUseCaseImpl(subjectRepository),
                 preloadSubjectImagesUseCase = preloadSubjectImagesUseCase,
-                preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase
+                preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase,
+                graphConfig = graphConfig
             )
         }
     }

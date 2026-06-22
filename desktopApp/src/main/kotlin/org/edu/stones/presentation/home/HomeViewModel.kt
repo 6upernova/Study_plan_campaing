@@ -5,23 +5,24 @@ import androidx.lifecycle.viewModelScope
 import org.edu.stones.domain.entity.Subject
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
-
 import org.edu.stones.domain.usecase.PreloadSubjectImagesUseCase
 import org.edu.stones.domain.usecase.PreloadSubjectLegendsUseCase
 import kotlinx.coroutines.flow.Flow
-
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.edu.stones.presentation.home.components.GraphLayoutData
 import org.edu.stones.presentation.home.components.GraphLayoutEngine
+import org.edu.stones.presentation.home.config.GraphConfig
+import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
 class HomeViewModel(
     private val getAllSubjectsUseCase: GetAllSubjectsUseCase,
     private val getSubjectsUseCase: GetSubjectDetailUseCase,
     private val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase,
     private val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase,
+    private val graphConfig: GraphConfig = GraphConfigDefaults.Default
 ) : ViewModel() {
 
     private val homeStateMutableStateFlow = MutableStateFlow(HomeUiState())
@@ -29,18 +30,19 @@ class HomeViewModel(
     val homeStateFlow: StateFlow<HomeUiState> = homeStateMutableStateFlow.asStateFlow()
 
     fun getAllSubjects() {
+        // Default desktop constraints for initial load
+        updateLayoutConstraints(1200f, 800f, 1f)
+    }
+
+    fun updateLayoutConstraints(availableWidth: Float, availableHeight: Float, density: Float) {
         viewModelScope.launch {
             homeStateMutableStateFlow.emit(HomeUiState(isLoading = true))
 
             val graph = getAllSubjectsUseCase()
 
-            val layoutData = GraphLayoutEngine.computeLayout(graph)
+            val layoutData = GraphLayoutEngine.computeLayout(graph, availableWidth, availableHeight, density, graphConfig)
 
             val subjects = graph.vertexSet().toList()
-            val subjectsList = subjects.map { subject ->
-                Triple(subject.abreviatura, subject.codigo, (subject.anio - 1) * 2 + determatePeriod(subject.periodo))
-            }
-
 
             homeStateMutableStateFlow.emit(
                 HomeUiState(

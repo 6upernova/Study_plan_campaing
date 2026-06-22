@@ -46,13 +46,8 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
-
-private const val LABEL_HEIGHT = 24f
-private val DIRT_DARK = Color(0xFF5D4037)
-private val DIRT_MID = Color(0xFF8D6E63)
-private val DIRT_LIGHT = Color(0xFFA1887F)
-private val DIRT_SHADOW = Color(0x403D2B1E)
-private const val CATMULL_TENSION = 0.5f
+import org.edu.stones.presentation.home.config.GraphConfig
+import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -61,13 +56,14 @@ fun DirectedGraphCanvas(
     paddingValues: PaddingValues = PaddingValues(0.dp),
     nodes: List<GraphNode>,
     edges: List<GraphEdge>,
-    onNodeClick: (String) -> Unit
+    onNodeClick: (String) -> Unit,
+    config: GraphConfig = GraphConfigDefaults.Default
 ) {
     val visibleNodes = nodes.filter { !it.isDummy }
 
     val maxX = visibleNodes.maxOfOrNull { it.x + it.spriteSize } ?: 1000f
 
-    val canvasWidth = (maxX + 200).coerceAtLeast(800f)
+    val canvasWidth = (maxX + config.canvasExtraWidth).coerceAtLeast(config.canvasMinWidth)
 
     val horizontalScrollState = rememberScrollState()
 
@@ -82,7 +78,7 @@ fun DirectedGraphCanvas(
                 .horizontalScroll(horizontalScrollState)
                 .onPointerEvent(PointerEventType.Scroll) { event ->
                     val delta = event.changes.firstOrNull()?.scrollDelta ?: return@onPointerEvent
-                    val horizontalDelta = delta.y * -48f
+                    val horizontalDelta = delta.y * (canvasWidth * -config.scrollWheelMultiplier)
                     horizontalScrollState.dispatchRawDelta(horizontalDelta)
                 }
         ) {
@@ -92,7 +88,7 @@ fun DirectedGraphCanvas(
                     .fillMaxHeight()
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    edges.forEach { edge -> drawDirtPath(edge) }
+                    edges.forEach { edge -> drawDirtPath(edge, config) }
                 }
 
                 visibleNodes.forEach { node ->
@@ -135,45 +131,43 @@ private fun StructureNode(
         Text(
             text = node.subject.abreviatura,
             color = Color(0xFFF5E6C8),
-            fontSize = 9.sp,
+            fontSize = with(LocalDensity.current) { node.fontSize.toInt().sp },
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(
-                with(LocalDensity.current) { (node.spriteSize + 20f).toInt().dp }
-            )
+
         )
     }
 }
 
-private fun DrawScope.drawDirtPath(edge: GraphEdge) {
-    val path = buildSmoothPath(edge)
-    drawPathLayered(path)
-    drawPathTexture(path, edge)
+fun DrawScope.drawDirtPath(edge: GraphEdge, config: GraphConfig) {
+    val path = buildSmoothPath(edge, config)
+    drawPathLayered(path, edge.strokeWidth, config)
+    drawPathTexture(path, edge, config)
 }
 
-private fun DrawScope.drawPathLayered(path: Path) {
-    drawPath(path, color = DIRT_SHADOW, style = Stroke(width = 11f))
-    drawPath(path, color = DIRT_DARK, style = Stroke(width = 9f))
-    drawPath(path, color = DIRT_MID, style = Stroke(width = 7f))
-    drawPath(path, color = DIRT_LIGHT, style = Stroke(width = 5f))
+fun DrawScope.drawPathLayered(path: Path, strokeWidth: Float, config: GraphConfig) {
+    drawPath(path, color = config.colorDirtShadow, style = Stroke(width = strokeWidth * config.strokeShadowMultiplier))
+    drawPath(path, color = config.colorDirtDark, style = Stroke(width = strokeWidth * config.strokeDarkMultiplier))
+    drawPath(path, color = config.colorDirtMid, style = Stroke(width = strokeWidth * config.strokeMidMultiplier))
+    drawPath(path, color = config.colorDirtLight, style = Stroke(width = strokeWidth * config.strokeLightMultiplier))
 }
 
-private fun DrawScope.drawPathTexture(path: Path, edge: GraphEdge) {
+fun DrawScope.drawPathTexture(path: Path, edge: GraphEdge, config: GraphConfig) {
     val rng = SimpleRNG(edge.fromCode.hashCode())
 
     val points = buildPointList(edge)
-    val approxLen = estimatePathLength(points)
-    val step = 15f
+    val approxLen = estimatePathLength(points, config)
+    val step = config.textureStepDistance
     var t = 0f
     while (t <= 1f) {
-        val pt = sampleCatmullRom(points, t, CATMULL_TENSION)
-        val pebbleR = rng.next() % 3 + 1
-        val pebbleX = pt.x + (rng.next() % 7 - 3)
-        val pebbleY = pt.y + (rng.next() % 7 - 3)
+        val pt = sampleCatmullRom(points, t, config.catmullTension, config)
+        val pebbleR = rng.next() % (config.pebbleRadiusMax - config.pebbleRadiusMin + 1) + config.pebbleRadiusMin
+        val pebbleX = pt.x + (rng.next() % (config.pebbleJitterRange * 2 + 1) - config.pebbleJitterRange)
+        val pebbleY = pt.y + (rng.next() % (config.pebbleJitterRange * 2 + 1) - config.pebbleJitterRange)
         drawCircle(
-            color = DIRT_DARK.copy(alpha = 0.3f),
+            color = config.colorDirtDark.copy(alpha = config.pebbleAlpha),
             radius = pebbleR.toFloat(),
             center = Offset(pebbleX, pebbleY)
         )
@@ -181,11 +175,11 @@ private fun DrawScope.drawPathTexture(path: Path, edge: GraphEdge) {
     }
 }
 
-private fun estimatePathLength(points: List<Offset>): Float {
+fun estimatePathLength(points: List<Offset>, config: GraphConfig): Float {
     if (points.size <= 2) {
         val dx = points[1].x - points[0].x
         val dy = points[1].y - points[0].y
-        return sqrt((dx * dx + dy * dy).toDouble()).toFloat() * 1.2f
+        return sqrt((dx * dx + dy * dy).toDouble()).toFloat() * config.directPathLenMultiplier
     }
     var len = 0f
     for (i in 0 until points.size - 1) {
@@ -193,17 +187,17 @@ private fun estimatePathLength(points: List<Offset>): Float {
         val dy = points[i + 1].y - points[i].y
         len += sqrt((dx * dx + dy * dy).toDouble()).toFloat()
     }
-    return len * 1.15f
+    return len * config.routedPathLenMultiplier
 }
 
-private fun sampleCatmullRom(points: List<Offset>, t: Float, tension: Float): Offset {
+fun sampleCatmullRom(points: List<Offset>, t: Float, tension: Float, config: GraphConfig): Offset {
     if (points.size <= 2) {
         val p0 = points[0]
         val p1 = points[1]
         val dx = p1.x - p0.x
-        val cp1x = p0.x + dx * 0.4f
+        val cp1x = p0.x + dx * config.curveControlPointFactor
         val cp1y = p0.y
-        val cp2x = p1.x - dx * 0.4f
+        val cp2x = p1.x - dx * config.curveControlPointFactor
         val cp2y = p1.y
         val u = t
         val u2 = u * u
@@ -247,17 +241,17 @@ private fun sampleCatmullRom(points: List<Offset>, t: Float, tension: Float): Of
     return Offset(x, y)
 }
 
-private fun buildSmoothPath(edge: GraphEdge): Path {
+fun buildSmoothPath(edge: GraphEdge, config: GraphConfig): Path {
     val points = buildPointList(edge)
 
     if (points.size <= 2) {
-        return buildSimpleSCurve(points[0], points[1])
+        return buildSimpleSCurve(points[0], points[1], config)
     }
 
-    return buildCatmullRomSpline(points)
+    return buildCatmullRomSpline(points, config)
 }
 
-private fun buildPointList(edge: GraphEdge): List<Offset> {
+fun buildPointList(edge: GraphEdge): List<Offset> {
     val points = mutableListOf<Offset>()
     points.add(Offset(edge.fromX, edge.fromY))
     points.addAll(edge.waypoints)
@@ -265,21 +259,21 @@ private fun buildPointList(edge: GraphEdge): List<Offset> {
     return points
 }
 
-private fun buildSimpleSCurve(from: Offset, to: Offset): Path {
+fun buildSimpleSCurve(from: Offset, to: Offset, config: GraphConfig): Path {
     val dx = to.x - from.x
     return Path().apply {
         moveTo(from.x, from.y)
-        val cp1x = from.x + dx * 0.4f
+        val cp1x = from.x + dx * config.curveControlPointFactor
         val cp1y = from.y
-        val cp2x = to.x - dx * 0.4f
+        val cp2x = to.x - dx * config.curveControlPointFactor
         val cp2y = to.y
         cubicTo(cp1x, cp1y, cp2x, cp2y, to.x, to.y)
     }
 }
 
-private fun buildCatmullRomSpline(points: List<Offset>): Path {
+fun buildCatmullRomSpline(points: List<Offset>, config: GraphConfig): Path {
     val path = Path().apply { moveTo(points[0].x, points[0].y) }
-    val tension = CATMULL_TENSION
+    val tension = config.catmullTension
 
     for (i in 0 until points.size - 1) {
         val p0 = if (i > 0) points[i - 1] else points[0]
@@ -297,7 +291,7 @@ private fun buildCatmullRomSpline(points: List<Offset>): Path {
     return path
 }
 
-private class SimpleRNG(seed: Int) {
+class SimpleRNG(seed: Int) {
     private var state = seed
     fun next(): Int {
         state = state * 1103515245 + 12345

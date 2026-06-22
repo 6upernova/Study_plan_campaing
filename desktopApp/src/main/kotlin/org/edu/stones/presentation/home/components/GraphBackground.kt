@@ -12,11 +12,14 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
+import org.edu.stones.presentation.home.config.GraphConfig
+import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
 @Composable
 fun GraphBackground(
     imagePath: String = "images/background.png",
-    alpha: Float = 1f
+    alpha: Float = 1f,
+    config: GraphConfig = GraphConfigDefaults.Default
 ) {
 
     val imageBitmap = remember(imagePath) {
@@ -36,7 +39,7 @@ fun GraphBackground(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .alpha(alpha)
+            .alpha(config.backgroundAlpha)
 
             .drawBehind {
                 drawRect(brush = shaderBrush)

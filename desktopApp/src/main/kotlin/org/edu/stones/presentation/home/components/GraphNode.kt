@@ -39,7 +39,9 @@ data class GraphNode(
     val y: Float,
     val isDummy: Boolean = false,
     val structureType: StructureType = StructureType.forYear(year, subject.codigo.hashCode()),
-    val spriteSize: Float = 90f
+    val spriteSize: Float,
+    val strokeWidth: Float,
+    val fontSize: Float
 )
 
 data class GraphEdge(
@@ -49,7 +51,8 @@ data class GraphEdge(
     val fromY: Float,
     val toX: Float,
     val toY: Float,
-    val waypoints: List<Offset> = emptyList()
+    val waypoints: List<Offset> = emptyList(),
+    val strokeWidth: Float
 )
 
 data class GraphLayoutData(
