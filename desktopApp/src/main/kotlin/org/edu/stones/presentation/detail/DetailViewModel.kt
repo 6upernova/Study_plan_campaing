@@ -77,6 +77,8 @@ class DetailViewModel(
         val isImageLoading: Boolean = false,
         val legend: String? = null,
         val isLegendLoading: Boolean = false,
+        val loadingAprovNames: Boolean = false,
+        val loadingcourseNames: Boolean = false,
         val aprovNames: String? = "Ninguna",
         val courseNames: String? = "Ninguna"
     )
@@ -87,9 +89,11 @@ class DetailViewModel(
 
     fun getAprovNames(codes: String) {
         viewModelScope.launch {
+            detailUiState.value = detailUiState.value.copy(loadingAprovNames = true)
             detailUiState.update { current ->
                 current.copy(
-                    aprovNames = getSubjectNameUseCase(codes)
+                    aprovNames = getSubjectNameUseCase(codes),
+                    loadingAprovNames = false
                 )
             }
         }
@@ -97,9 +101,11 @@ class DetailViewModel(
 
     fun getCourseNames(codes: String) {
         viewModelScope.launch {
+            detailUiState.value = detailUiState.value.copy(loadingcourseNames = true)
             detailUiState.update { current ->
                 current.copy(
-                    courseNames = getSubjectNameUseCase(codes)
+                    courseNames = getSubjectNameUseCase(codes),
+                    loadingcourseNames = false
                 )
             }
         }

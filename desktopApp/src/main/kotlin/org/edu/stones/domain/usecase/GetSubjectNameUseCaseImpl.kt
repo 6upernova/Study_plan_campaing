@@ -7,8 +7,8 @@ class GetSubjectNameUseCaseImpl(
     private val subjectRepository: SubjectRepository
 ) : GetSubjectNameUseCase {
 
-    override suspend operator fun invoke(ids: String): String? {
-        val names = ids
+    override suspend operator fun invoke(code: String): String? {
+        val names = code
             .split(", ")
             .mapNotNull { id ->
                 subjectRepository

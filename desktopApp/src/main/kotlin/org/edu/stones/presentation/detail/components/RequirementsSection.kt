@@ -71,6 +71,7 @@ fun RequirementsSection(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             Text(
                 text = "Requisitos para cursar/aprobar:",
                 style = MaterialTheme.typography.titleLarge.copy(color = Color.Black)
@@ -80,15 +81,44 @@ fun RequirementsSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
+               var courseText = loadingCourseNames(uiState)
+               var aprovText = loadingAproveNames(uiState)
+
                 Text(
-                    text = "Cursadas: \"${uiState.courseNames}\"",
+                    text = "Cursadas: ${loadingCourseNames(uiState)}",
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
                 )
                 Text(
-                    text = "Aprobadas: \"${uiState.aprovNames}\"",
+                    text = "Aprobadas: ${loadingAproveNames(uiState)}",
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
                 )
             }
         }
     }
+}
+
+private fun loadingCourseNames(
+    uiState: DetailUiState
+): String?
+{
+    val finalText : String?
+    if (uiState.loadingcourseNames)
+        finalText = "Buscando..."
+    else
+        finalText = uiState.courseNames
+
+    return  finalText
+}
+
+private fun loadingAproveNames(
+    uiState: DetailUiState
+): String?
+{
+    val finalText : String?
+    if (uiState.loadingAprovNames)
+        finalText = "Buscando..."
+    else
+        finalText = uiState.aprovNames
+
+    return  finalText
 }
