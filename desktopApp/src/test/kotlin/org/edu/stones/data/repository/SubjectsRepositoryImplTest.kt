@@ -2,8 +2,8 @@ package org.edu.stones.data.repository
 
 import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.external.broker.SubjectsBroker
-import org.edu.stones.data.local.SubjectLocalDataSource
-import org.edu.stones.data.local.graph.CachedGraph
+import org.edu.stones.data.local.subjects.SubjectLocalDataSource
+import org.edu.stones.data.local.subjects.CachedGraph
 import org.edu.stones.domain.entity.Subject
 import org.edu.stones.subject
 import kotlin.test.Test

@@ -2,6 +2,7 @@ package org.edu.stones.data.repository
 
 import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.local.subjects.SubjectLocalDataSource
+import org.jgrapht.alg.TransitiveReduction
 import org.edu.stones.data.local.subjects.CacheConstants
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toCachedGraph
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toDomainGraph
@@ -66,6 +67,8 @@ class SubjectsRepositoryImpl(
         edgesWithoutTransitive.forEach { (source, target) ->
             graph.addEdge(source, target)
         }
+
+        TransitiveReduction.INSTANCE.reduce(graph)
 
         println("Graph built with ${graph.vertexSet()} vertices and ${graph.edgeSet()} edges")
         return graph

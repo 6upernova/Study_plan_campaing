@@ -6,6 +6,7 @@ import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -32,8 +33,7 @@ class GraphLayoutEngineTest {
     }
 
     @Test
-    fun `la columna se calcula segun anio y periodo`() {
-        // columna = (anio-1)*2 + periodo ; Primer=1, otro=2
+    fun `la layer se calcula segun anio y periodo`() {
         val primer1 = subject(codigo = "P1", anio = 1, periodo = "Primer Cuatrimestre")
         val segundo1 = subject(codigo = "S1", anio = 1, periodo = "Segundo Cuatrimestre")
         val primer2 = subject(codigo = "P2", anio = 2, periodo = "Primer Cuatrimestre")
@@ -41,19 +41,19 @@ class GraphLayoutEngineTest {
         val layout = GraphLayoutEngine.computeLayout(graphOf(primer1, segundo1, primer2))
         val byCode = layout.nodes.associateBy { it.subject.codigo }
 
-        assertEquals(1, byCode.getValue("P1").column)
-        assertEquals(2, byCode.getValue("S1").column)
-        assertEquals(3, byCode.getValue("P2").column)
+        assertEquals(0, byCode.getValue("P1").layer)
+        assertEquals(1, byCode.getValue("S1").layer)
+        assertEquals(2, byCode.getValue("P2").layer)
     }
 
     @Test
-    fun `el ruido es determinista para el mismo codigo`() {
-        val s = subject(codigo = "DET")
+    fun `posicion x e y es determinista para el mismo codigo`() {
+        val s = subject(codigo = "DET", anio = 1, periodo = "Primer Cuatrimestre")
         val n1 = GraphLayoutEngine.computeLayout(graphOf(s)).nodes.first()
         val n2 = GraphLayoutEngine.computeLayout(graphOf(s)).nodes.first()
 
-        assertEquals(n1.noiseX, n2.noiseX)
-        assertEquals(n1.noiseY, n2.noiseY)
+        assertEquals(n1.x, n2.x)
+        assertEquals(n1.y, n2.y)
     }
 
     @Test
@@ -64,24 +64,81 @@ class GraphLayoutEngineTest {
     }
 
     @Test
-    fun `ordena dentro de la columna por cantidad de prerequisitos`() {
-        // Dos materias en la misma columna: una con prerequisito (in-degree 1)
-        // y otra sin (in-degree 0). La de in-degree 0 va antes.
-        val prereq = subject(codigo = "PRE", anio = 1, periodo = "Primer Cuatrimestre")
-        val sinPrereq = subject(codigo = "LIBRE", anio = 1, periodo = "Primer Cuatrimestre")
-        val conPrereq = subject(codigo = "DEP", anio = 1, periodo = "Primer Cuatrimestre")
+    fun `ordena dentro de la layer por minimizacion de cruces`() {
+        val a = subject(codigo = "A", anio = 1, periodo = "Primer Cuatrimestre")
+        val b = subject(codigo = "B", anio = 1, periodo = "Primer Cuatrimestre")
+        val c = subject(codigo = "C", anio = 1, periodo = "Segundo Cuatrimestre")
+        val d = subject(codigo = "D", anio = 1, periodo = "Segundo Cuatrimestre")
 
-        val graph = graphOf(prereq, sinPrereq, conPrereq)
-        graph.addEdge(prereq, conPrereq) // conPrereq tiene in-degree 1
+        val graph = graphOf(a, b, c, d)
+        graph.addEdge(a, c)
+        graph.addEdge(b, d)
 
         val layout = GraphLayoutEngine.computeLayout(graph)
-        val sameColumn = layout.nodes
-            .filter { it.column == 1 }
-            .sortedBy { it.positionInColumn }
-            .map { it.subject.codigo }
+        val layer0 = layout.nodes.filter { it.layer == 0 }.sortedBy { it.positionInLayer }.map { it.subject.codigo }
+        val layer1 = layout.nodes.filter { it.layer == 1 }.sortedBy { it.positionInLayer }.map { it.subject.codigo }
 
-        // conPrereq (in-degree 1) debe ir despues de los de in-degree 0
-        assertTrue(sameColumn.indexOf("DEP") > sameColumn.indexOf("LIBRE"))
+        assertEquals(2, layer0.size)
+        assertEquals(2, layer1.size)
+    }
+
+    @Test
+    fun `arista entre layers adyacentes no tiene waypoints`() {
+        val a = subject(codigo = "A", anio = 1, periodo = "Primer Cuatrimestre")
+        val b = subject(codigo = "B", anio = 1, periodo = "Segundo Cuatrimestre")
+        val graph = graphOf(a, b)
+        graph.addEdge(a, b)
+
+        val layout = GraphLayoutEngine.computeLayout(graph)
+        val edge = layout.edges.first()
+
+        assertTrue(edge.waypoints.isEmpty())
+    }
+
+    @Test
+    fun `arista que salta layers tiene waypoints`() {
+        val a = subject(codigo = "A", anio = 1, periodo = "Primer Cuatrimestre")
+        val b = subject(codigo = "B", anio = 3, periodo = "Primer Cuatrimestre")
+        val graph = graphOf(a, b)
+        graph.addEdge(a, b)
+
+        val layout = GraphLayoutEngine.computeLayout(graph)
+        val edge = layout.edges.first()
+
+        assertFalse(edge.waypoints.isEmpty())
+    }
+
+    @Test
+    fun `estructura asignada por anio`() {
+        val a = subject(codigo = "A", anio = 1, periodo = "Primer Cuatrimestre")
+        val b = subject(codigo = "B", anio = 2, periodo = "Primer Cuatrimestre")
+        val c = subject(codigo = "C", anio = 3, periodo = "Primer Cuatrimestre")
+        val d = subject(codigo = "D", anio = 4, periodo = "Primer Cuatrimestre")
+        val e = subject(codigo = "E", anio = 5, periodo = "Primer Cuatrimestre")
+
+        val layout = GraphLayoutEngine.computeLayout(graphOf(a, b, c, d, e))
+        val byCode = layout.nodes.associateBy { it.subject.codigo }
+
+        assertEquals("HUT_1", byCode.getValue("A").structureType.name.take(6))
+        assertEquals("HOUSE_1", byCode.getValue("B").structureType.name.take(7))
+        assertEquals("CAVE_1", byCode.getValue("C").structureType.name.take(6))
+        assertEquals("TOWER_1", byCode.getValue("D").structureType.name.take(7))
+        assertEquals("CASTLE_1", byCode.getValue("E").structureType.name.take(8))
+    }
+
+    @Test
+    fun `topological layer respeta prerequisitos`() {
+        val prereq = subject(codigo = "PRE", anio = 2, periodo = "Primer Cuatrimestre")
+        val dependent = subject(codigo = "DEP", anio = 1, periodo = "Segundo Cuatrimestre")
+
+        val graph = graphOf(prereq, dependent)
+        graph.addEdge(prereq, dependent)
+
+        val layout = GraphLayoutEngine.computeLayout(graph)
+        val preNode = layout.nodes.first { it.subject.codigo == "PRE" }
+        val depNode = layout.nodes.first { it.subject.codigo == "DEP" }
+
+        assertTrue(depNode.layer > preNode.layer)
     }
 
     @Test

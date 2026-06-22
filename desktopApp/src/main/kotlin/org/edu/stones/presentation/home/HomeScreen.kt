@@ -83,7 +83,7 @@ fun HomeScreen(
                 ) { padding ->
                     if (layoutData != null) {
                         androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
-                            GraphBackground(alpha = 0.7f)
+                            GraphBackground(alpha = 0.8f)
 
                             DirectedGraphCanvas(
                                 modifier = Modifier.fillMaxSize(),
