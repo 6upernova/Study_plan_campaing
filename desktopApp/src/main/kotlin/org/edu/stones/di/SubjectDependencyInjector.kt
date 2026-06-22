@@ -25,9 +25,14 @@ import org.edu.stones.data.local.subjects.SubjectLocalDataSource
 import org.edu.stones.data.local.subjects.SubjectLocalDataSourceImpl
 import org.edu.stones.domain.usecase.GetAllSubjectsUseCaseImpl
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCaseImpl
+import org.edu.stones.domain.usecase.GetSubjectNameUseCase
+import org.edu.stones.domain.usecase.GetSubjectNameUseCaseImpl
 import org.edu.stones.presentation.detail.DetailViewModel
+
 import org.edu.stones.presentation.home.config.GraphConfig
 import org.edu.stones.presentation.home.config.GraphConfigDefaults
+
+
 import kotlin.collections.List
 
 object SubjectDependencyInjector {
@@ -55,6 +60,7 @@ object SubjectDependencyInjector {
     private val legendRepository = LegendRepositoryImpl(legendBroker, legendLocalDataSource)
     private val getSubjectLegendUseCase = GetSubjectLegendUseCaseImpl(legendRepository)
     private val preloadSubjectLegendsUseCase = PreloadSubjectLegendsUseCaseImpl(getSubjectLegendUseCase)
+    private val getSubjectNameUseCase = GetSubjectNameUseCaseImpl(subjectRepository)
 
     @Composable
     fun getHomeViewModel(): HomeViewModel {
@@ -75,7 +81,8 @@ object SubjectDependencyInjector {
             DetailViewModel(
                 getSubjectDetailUseCase = GetSubjectDetailUseCaseImpl(subjectRepository),
                 generateSubjectImageUseCase = generateSubjectImageUseCase,
-                getSubjectLegendUseCase = getSubjectLegendUseCase
+                getSubjectLegendUseCase = getSubjectLegendUseCase,
+                getSubjectNameUseCase = getSubjectNameUseCase,
             )
         }
     }

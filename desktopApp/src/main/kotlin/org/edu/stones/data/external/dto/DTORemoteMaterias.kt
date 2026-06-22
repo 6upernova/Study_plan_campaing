@@ -18,8 +18,8 @@ data class DTORemoteMaterias(
     @SerialName("Inscriptos")val inscriptos: Int,
     @SerialName("Presencialidad")val presencialidad: String,
     @SerialName("CantAprobados")val cantAprobados: Int,
-    @SerialName("CorrelativasCursadas")val correlativasCursadas: String? = null,
-    @SerialName("CorrelativasAprobadas")val correlativasAprobadas: String? = null,
+    @SerialName("CorrelativasCursadas")val correlativasCursadas: String = "",
+    @SerialName("CorrelativasAprobadas")val correlativasAprobadas: String = "",
     @SerialName("Abreviatura")val abreviatura: String = "",
 )
 

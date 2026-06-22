@@ -5,16 +5,21 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.edu.stones.domain.entity.Subject
 import org.edu.stones.domain.usecase.GenerateSubjectImageUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
 import org.edu.stones.domain.usecase.GetSubjectLegendUseCase
+import org.edu.stones.domain.usecase.GetSubjectNameUseCase
+import kotlin.Boolean
+import kotlin.String
 
 class DetailViewModel(
     private val getSubjectDetailUseCase: GetSubjectDetailUseCase,
     private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
     private val getSubjectLegendUseCase: GetSubjectLegendUseCase,
+    private val getSubjectNameUseCase: GetSubjectNameUseCase
 ) : ViewModel() {
 
     private val detailUiState = MutableStateFlow(DetailUiState())
@@ -41,6 +46,7 @@ class DetailViewModel(
             }
         }
     }
+
 
     private fun loadSubjectLegend(subject: Subject) {
         viewModelScope.launch {
@@ -71,9 +77,31 @@ class DetailViewModel(
         val isImageLoading: Boolean = false,
         val legend: String? = null,
         val isLegendLoading: Boolean = false,
+        val aprovNames: String? = null,
+        val courseNames: String? = null
     )
 
     fun getDetail() {
         detailUiState.value = DetailUiState()
+    }
+
+    fun getAprovNames(codes: String) {
+        viewModelScope.launch {
+            detailUiState.update { current ->
+                current.copy(
+                    aprovNames = getSubjectNameUseCase(codes)
+                )
+            }
+        }
+    }
+
+    fun getCourseNames(codes: String) {
+        viewModelScope.launch {
+            detailUiState.update { current ->
+                current.copy(
+                    courseNames = getSubjectNameUseCase(codes)
+                )
+            }
+        }
     }
 }
