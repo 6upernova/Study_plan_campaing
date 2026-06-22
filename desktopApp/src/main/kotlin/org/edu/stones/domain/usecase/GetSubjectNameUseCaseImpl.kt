@@ -18,6 +18,7 @@ class GetSubjectNameUseCaseImpl(
 
         return names.takeIf { it.isNotEmpty() }
             ?.joinToString(", ")
+            ?: "Ninguna"
     }
 }
 

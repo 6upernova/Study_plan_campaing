@@ -34,6 +34,11 @@ import org.edu.stones.domain.entity.Subject
 import org.edu.stones.presentation.AppTypography
 import org.edu.stones.presentation.detail.DetailViewModel.DetailUiState
 import org.edu.stones.presentation.detail.DetailViewModel
+import org.edu.stones.presentation.detail.components.GeneralInfoSection
+import org.edu.stones.presentation.detail.components.HeaderSection
+import org.edu.stones.presentation.detail.components.LegendSection
+import org.edu.stones.presentation.detail.components.RequirementsSection
+import org.edu.stones.presentation.detail.components.StatisticsSection
 import org.jetbrains.skia.Image as SkiaImage
 
 
@@ -50,12 +55,7 @@ fun SubjectDetailScreen(
         Box(
             modifier = modifier.fillMaxSize()
         ) {
-            Image(
-                painter = painterResource("images/detailScreen/paperBackground.png"),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize()
-            )
+     backGround()
             Surface(
                 color = Color.Transparent,
                 modifier = Modifier.fillMaxSize()
@@ -67,11 +67,7 @@ fun SubjectDetailScreen(
                             modifier = modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "Cargando materia...",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = 24.sp
-                            )
+                            showText("Cargando Materia...")
                         }
                     }
 
@@ -80,7 +76,7 @@ fun SubjectDetailScreen(
 
                         Column(
                             modifier = modifier
-                                .fillMaxSize()
+                                .fillMaxHeight()
                                 .padding(16.dp)
                         ) {
 
@@ -88,11 +84,7 @@ fun SubjectDetailScreen(
 
                             Spacer(Modifier.height(8.dp))
 
-                            Box(
-                                modifier = Modifier.wrapContentHeight()
-                            ) {
-                                GeneralInfoSection(subject, uiState)
-                            }
+                            GeneralInfoSection(subject, uiState)
 
                             Spacer(Modifier.height(8.dp))
 
@@ -100,26 +92,19 @@ fun SubjectDetailScreen(
 
                             Spacer(Modifier.height(8.dp))
 
-                            Box(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                StatisticsSection(subject)
-                            }
+                            StatisticsSection(subject)
 
                             Spacer(Modifier.height(8.dp))
 
-                            LegendSection(
-                                legend = uiState.legend,
-                                isLegendLoading = uiState.isLegendLoading
-                            )
+                            LegendSection(uiState.legend, uiState.isLegendLoading)
                         }
                     }
 
                     else -> {
                         if (uiState.isLoading == false && uiState.subject == null)
-                            Text("Terminó de cargar y no hay datos")
+                            showText("Terminó de cargar y no hay datos")
                         else
-                            Text("Cargando...")
+                            showText("Cargando...")
                     }
                 }
             }
@@ -128,556 +113,20 @@ fun SubjectDetailScreen(
 }
 
 @Composable
-private fun HeaderSection(
-    title: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/SubjectBorderName.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
-            modifier = Modifier.padding(16.dp)
-        )
-    }
+private fun showText(text: String){
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        fontSize = 24.sp
+    )
 }
 
 @Composable
-private fun GeneralInfoSection(
-    subject: Subject,
-    uiState: DetailViewModel.DetailUiState
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        PropertiesTable(
-            subject = subject,
-            modifier = Modifier.weight(2f).padding(horizontal = 8.dp)
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        SubjectImageBox(
-            imageBytes = uiState.imageBytes,
-            isImageLoading = uiState.isImageLoading,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-        )
-    }
-}
-
-@Composable
-private fun SubjectImageBox(
-    imageBytes: ByteArray?,
-    isImageLoading: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val overlayPainter = painterResource("images/detailScreen/SubjectBorderIcon.png")
-
-    val bitmap: ImageBitmap? = remember(imageBytes) {
-        imageBytes?.let { decodeImage(it) }
-    }
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        when {
-            isImageLoading -> {
-                Box(
-                    modifier = modifier,
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            bitmap != null -> {
-                Image(
-                    bitmap = bitmap,
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = modifier
-                )
-            }
-
-            else -> {
-                Image(
-                    painter = painterResource("images/detailScreen/fotoBase.png"),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = modifier
-                )
-            }
-        }
-        Image(
-            painter = overlayPainter,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer(
-                    scaleX = 1.05f,
-                    scaleY = 1.05f
-                )
-        )
-    }
-}
-
-private fun decodeImage(bytes: ByteArray): ImageBitmap? =
-    runCatching { SkiaImage.makeFromEncoded(bytes).toComposeImageBitmap() }.getOrNull()
-
-@Composable
-private fun PropertiesTable(
-    subject: Subject,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.border(
-        width = 1.dp,
-        color = Color.Transparent
-    ),
-        contentAlignment = Alignment.Center){
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Column(
-            modifier = modifier.fillMaxSize()
-        ) {
-            PropertyRow("Código", subject.codigo)
-            PropertyRow("Nombre", subject.nombre)
-            PropertyRow("Año", subject.anio.toString())
-            PropertyRow("Período", subject.periodo)
-            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
-            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
-            PropertyRow("Inscriptos", subject.inscriptos.toString())
-            PropertyRow("Presencialidad", subject.presencialidad)
-            PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
-        }
-    }
-}
-
-@Composable
-private fun PropertyRow(
-    label: String,
-    value: String
-) {
-    val borderColor = Color(0xFF8C7445)
-    Box(
-        Modifier.border(
-            width = 1.dp,
-            color = borderColor
-        ))
-        {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp),
-            )
-            VerticalDivider(
-                modifier = Modifier.fillMaxHeight(),
-                color = borderColor,
-                thickness = 1.dp
-            )
-            Text(
-                text = value,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun RequirementsSection(
-    subject: Subject,
-    viewModel: DetailViewModel,
-    uiState: DetailUiState
-) {
-
-    LaunchedEffect(Unit){
-        viewModel.getAprovNames(subject.correlativasAprobadas)
-        viewModel.getCourseNames(subject.correlativasCursadas)
-    }
-
-    Box(
-        modifier = Modifier.border(
-            width = 1.dp,
-            color = Color.Transparent
-        ),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Requisitos para cursar/aprobar:",
-                style = MaterialTheme.typography.titleLarge.copy(color = Color.Black)
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text(
-                    text = "Cursadas: \"${uiState.courseNames}\"",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                )
-                Text(
-                    text = "Aprobadas: \"${uiState.aprovNames}\"",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatisticsSection(
-    subject: Subject
-) {
-    val approvalPercentage = if (subject.inscriptos > 0) {
-        subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
-    } else {
-        0f
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
-        ApprovalCard(
-            percentage = approvalPercentage,
-            approved = subject.cantAprobados,
-            enrolled = subject.inscriptos,
-            modifier = Modifier.weight(1f).fillMaxHeight()
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        AverageCard(
-            average = subject.notasPromedio,
-            modifier = Modifier.weight(1f).fillMaxHeight()
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        AttendanceCard(
-            modality = subject.presencialidad,
-            percentage = if (subject.presencialidad.equals("Presencial", true)) 1f else 0f,
-            modifier = Modifier.weight(1f).fillMaxHeight()
-        )
-    }
-}
-
-@Composable
-private fun ApprovalCard(
-    percentage: Float,
-    approved: Int,
-    enrolled: Int,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.border(
-            width = 1.dp,
-            color = Color.Transparent
-        ),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "% DE APROBACIÓN",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(100.dp)
-                ) {
-                    Canvas(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        drawArc(
-                            color = Color.LightGray,
-                            startAngle = 0f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            style = Stroke(
-                                width = 28f,
-                                cap = StrokeCap.Round
-                            )
-                        )
-                        drawArc(
-                            color = Color(0xFF4CAF50),
-                            startAngle = -90f,
-                            sweepAngle = percentage * 360f,
-                            useCenter = false,
-                            style = Stroke(
-                                width = 28f,
-                                cap = StrokeCap.Round
-                            )
-                        )
-                    }
-                    Text(
-                        text = "${(percentage * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "$approved / $enrolled",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AverageCard(
-    average: Double,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.border(
-            width = 3.dp,
-            color = Color.Transparent
-        ),contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "PROMEDIO DE NOTAS",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier
-                        .size(width = 180.dp, height = 100.dp)
-                ) {
-                    Canvas(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        drawArc(
-                            color = Color.LightGray,
-                            startAngle = 180f,
-                            sweepAngle = 180f,
-                            useCenter = false,
-                            style = Stroke(width = 24f)
-                        )
-
-                        drawArc(
-                            color = Color(0xFF1976D2),
-                            startAngle = 180f,
-                            sweepAngle = ((average / 10f) * 180f).toFloat(),
-                            useCenter = false,
-                            style = Stroke(width = 24f)
-                        )
-                    }
-
-                    Text(
-                        text = "%.2f".format(average),
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                    )
-
-                    Text(
-                        text = "0",
-                        modifier = Modifier
-                            .align(Alignment.BottomStart).offset(y = (-30).dp),
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                    )
-
-                    Text(
-                        text = "10",
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd).offset(y = (-30).dp),
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AttendanceCard(
-    modality: String,
-    percentage: Float,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.border(
-            width = 1.dp,
-            color = Color.Transparent
-        ), contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "PRESENCIALIDAD",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-                Spacer(Modifier.height(16.dp))
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                    tint = Color.White
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = modality,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-                Spacer(Modifier.height(8.dp))
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(16.dp)
-                ) {
-                    drawLine(
-                        color = Color.LightGray,
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width, size.height / 2),
-                        strokeWidth = 8f
-                    )
-                    drawLine(
-                        color = Color(0xFF795548),
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width * percentage, size.height / 2),
-                        strokeWidth = 8f
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "${(percentage * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LegendSection(
-    legend: String?,
-    isLegendLoading: Boolean
-) {
-    Box(
-        modifier = Modifier.border(
-            width = 1.dp,
-            color = Color.Transparent
-        ),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource("images/detailScreen/dataBackground.png"),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.matchParentSize()
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "LEYENDA",
-                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
-            )
-            Spacer(Modifier.height(8.dp))
-            when {
-                isLegendLoading -> CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                legend != null -> Text(
-                    text = legend,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-                else -> Text(
-                    text = "—",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                )
-            }
-        }
-    }
+private fun backGround(){
+    Image(
+        painter = painterResource("images/detailScreen/paperBackground.png"),
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier.fillMaxSize()
+    )
 }

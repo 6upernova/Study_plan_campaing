@@ -77,8 +77,8 @@ class DetailViewModel(
         val isImageLoading: Boolean = false,
         val legend: String? = null,
         val isLegendLoading: Boolean = false,
-        val aprovNames: String? = null,
-        val courseNames: String? = null
+        val aprovNames: String? = "Ninguna",
+        val courseNames: String? = "Ninguna"
     )
 
     fun getDetail() {
