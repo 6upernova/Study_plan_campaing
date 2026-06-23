@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -76,7 +77,6 @@ fun HomeScreen(
                     val density = LocalDensity.current.density
                     val headerHeightDp = (maxWidth.value * config.headerHeightPercent)
                         .coerceIn(config.headerHeightMinDp, config.headerHeightMaxDp)
-                    val headerWidthDp = maxWidth.value
                     val availableWidthPx = with(LocalDensity.current) { maxWidth.toPx() }
                     val availableHeightPx = with(LocalDensity.current) { (maxHeight.value - headerHeightDp).dp.toPx() }
 
@@ -84,12 +84,18 @@ fun HomeScreen(
                         GraphBackground(alpha = config.backgroundAlpha, config = config)
 
                         Column(modifier = Modifier.fillMaxSize()) {
-                            TitleHeader(
-                                careerName = careerName,
-                                heightDp = headerHeightDp,
-                                headerWidthDp = headerWidthDp,
-                                config = config
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(headerHeightDp.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                TitleHeader(
+                                    careerName = careerName,
+                                    heightDp = headerHeightDp,
+                                    config = config
+                                )
+                            }
 
                             if (layoutData != null) {
                                 LaunchedEffect(availableWidthPx, availableHeightPx, density) {
@@ -137,38 +143,21 @@ fun HomeScreen(
 private fun TitleHeader(
     careerName: String,
     heightDp: Float,
-    headerWidthDp: Float,
     config: GraphConfig
 ) {
-    // Sign dimensions
     val signWidthDp = (heightDp * config.signAspectRatio)
         .coerceIn(config.signWidthMinDp, config.signWidthMaxDp)
-    
-    // Calculate sign position within the header area
-    val headerWidth = headerWidthDp
-    val signX = (headerWidth - signWidthDp) * config.signHorizontalAlign + config.signHorizontalOffset * signWidthDp
-    val signY = config.signVerticalOffset * heightDp // vertical offset within header
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(heightDp.dp)
-            .padding(start = signX.dp, top = signY.dp)
+            .size(signWidthDp.dp, heightDp.dp)
     ) {
-        // Sign image
         Image(
             painter = painterResource("images/TitleSign.png"),
             contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .size(signWidthDp.dp, heightDp.dp)
-                .align(Alignment.TopStart)
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.matchParentSize()
         )
-        // Title text positioned relative to sign
-        // Use relative coordinates (0.0-1.0) within the sign for text alignment
-        val textX = signWidthDp * config.titleTextAlign + config.titleTextOffsetX * signWidthDp
-        val textY = heightDp * config.titleTextVerticalAlign + config.titleTextOffsetY * heightDp
-        
         Text(
             text = careerName,
             color = config.colorTitleText,
@@ -176,11 +165,10 @@ private fun TitleHeader(
             fontWeight = FontWeight.Bold,
             fontFamily = AppTypography.displayLarge.fontFamily,
             letterSpacing = config.titleLetterSpacing.sp,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
             modifier = Modifier
-                .size(signWidthDp.dp, heightDp.dp)
-                .padding(start = textX.dp, top = textY.dp)
                 .align(Alignment.TopStart)
+                .padding(start = 20.dp, top = 60.dp)
         )
     }
 }

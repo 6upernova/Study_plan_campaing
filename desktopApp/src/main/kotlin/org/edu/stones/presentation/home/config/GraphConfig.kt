@@ -8,10 +8,10 @@ import androidx.compose.ui.unit.sp
 @Stable
 data class GraphConfig(
     // Layout percentages (0.0 - 1.0)
-    val layerSpacingPercent: Float = 0.15f,
-    val baseRowSpacingPercent: Float = 0.12f,
-    val minVerticalSpacingPercent: Float = 0.06f,
-    val paddingLeftPercent: Float = 0.04f,
+    val layerSpacingPercent: Float = 0.12f,
+    val baseRowSpacingPercent: Float = 0.20f,
+    val minVerticalSpacingPercent: Float = 0.1f,
+    val paddingLeftPercent: Float = 0.03f,
     val paddingTopPercent: Float = 0.02f,
     val bundleSpacingPercent: Float = 0.03f,
 
@@ -29,16 +29,16 @@ data class GraphConfig(
     val fontSizeMaxDp: Float = 14f,
 
     // Header
-    val headerHeightPercent: Float = 0.12f,
+    val headerHeightPercent: Float = 0.15f,
     val headerHeightMinDp: Float = 80f,
     val headerHeightMaxDp: Float = 140f,
-    val headerTopPaddingFactor: Float = 0.6f,
+    val headerTopPaddingFactor: Float = 0.1f,
 
     // Title sign
     val signAspectRatio: Float = 2f,
     val signWidthMinDp: Float = 100f,
     val signWidthMaxDp: Float = 1000f,
-    val titleFontSizeFactor: Float = 0.1f,
+    val titleFontSizeFactor: Float = 0.2f,
     val titleVerticalOffsetFactor: Float = 0.15f,
     val titleLetterSpacing: Float = 0.1f,
     // Title sign positioning & text alignment (relative 0.0-1.0 within sign)
@@ -47,7 +47,7 @@ data class GraphConfig(
     val signHorizontalOffset: Float = 0.0f,     // additional offset relative to sign width
     val signVerticalOffset: Float = 0.0f,       // additional offset relative to sign height
     val titleTextAlign: Float = 0.0f,           // 0=left, 0.5=center, 1=right (within sign)
-    val titleTextVerticalAlign: Float = 0.5f,   // 0=top, 0.5=center, 1=bottom (within sign)
+    val titleTextVerticalAlign: Float = 0.10f,   // 0=top, 0.5=center, 1=bottom (within sign)
     val titleTextOffsetX: Float = 0.0f,         // extra X offset relative to sign width
     val titleTextOffsetY: Float = 0.0f,         // extra Y offset relative to sign height
 
