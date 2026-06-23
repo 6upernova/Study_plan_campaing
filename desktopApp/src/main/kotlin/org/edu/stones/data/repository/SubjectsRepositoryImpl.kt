@@ -1,6 +1,6 @@
 package org.edu.stones.data.repository
 
-import org.edu.stones.data.external.broker.SubjectsBroker
+import org.edu.stones.data.external.SubjectDetailExternalSource
 import org.edu.stones.data.local.subjects.SubjectLocalDataSource
 import org.jgrapht.alg.TransitiveReduction
 import org.edu.stones.data.local.subjects.CacheConstants
@@ -12,7 +12,7 @@ import org.jgrapht.graph.DefaultDirectedGraph
 import org.jgrapht.graph.DefaultEdge
 
 class SubjectsRepositoryImpl(
-    private val subjectsBroker: SubjectsBroker,
+    private val externalSource: SubjectDetailExternalSource,
     private val localDataSource: SubjectLocalDataSource
 ) : SubjectRepository {
 
@@ -74,68 +74,13 @@ class SubjectsRepositoryImpl(
         return graph
     }
 
-    private fun removeTransitiveEdges(
-        graph: DefaultDirectedGraph<Subject, DefaultEdge>,
-        edges: List<Pair<Subject, Subject>>
-    ): List<Pair<Subject, Subject>> {
-        val adjacencyMap = mutableMapOf<Subject, MutableList<Subject>>()
-
-        graph.vertexSet().forEach { adjacencyMap[it] = mutableListOf() }
-
-        edges.forEach { (source, target) ->
-            adjacencyMap[source]?.add(target)
-        }
-
-        val edgesToKeep = mutableListOf<Pair<Subject, Subject>>()
-
-        for ((source, target) in edges) {
-            adjacencyMap[source]?.remove(target)
-
-            val reachable = bfsReachable(source, adjacencyMap)
-
-            adjacencyMap[source]?.add(target)
-
-            if (!reachable.contains(target)) {
-                edgesToKeep.add(source to target)
-            } else {
-                println("Removing transitive edge: ${source.codigo} -> ${target.codigo}")
-            }
-        }
-
-        return edgesToKeep
-    }
-
-    private fun bfsReachable(
-        start: Subject,
-        adjacencyMap: Map<Subject, List<Subject>>
-    ): Set<Subject> {
-        val visited = mutableSetOf<Subject>()
-        val queue = ArrayDeque<Subject>()
-        queue.add(start)
-        visited.add(start)
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            val neighbors = adjacencyMap[current] ?: emptyList()
-
-            for (neighbor in neighbors) {
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor)
-                    queue.add(neighbor)
-                }
-            }
-        }
-
-        return visited
-    }
-
     override suspend fun getSubjectDetail(id: String): Subject? {
-        return subjectsBroker.getSubjectsByCareer("ISI").firstOrNull { it.codigo == id }
+        return externalSource.getSubjectsByCareer("ISI").firstOrNull { it.codigo == id }
     }
 
     suspend fun forceRefresh(): DefaultDirectedGraph<Subject, DefaultEdge> {
         localDataSource.invalidateCache()
-        val subjectsList = subjectsBroker.getSubjectsByCareer("ISI")
+        val subjectsList = externalSource.getSubjectsByCareer("ISI")
         val graph = buildGraph(subjectsList)
 
         val cachedGraphToSave = graph.toCachedGraph("ISI", CacheConstants.DEFAULT_VERSION)

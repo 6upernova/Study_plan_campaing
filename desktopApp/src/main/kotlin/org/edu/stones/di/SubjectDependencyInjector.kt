@@ -4,11 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.edu.stones.data.repository.SubjectsRepositoryImpl
 import org.edu.stones.presentation.home.HomeViewModel
-import org.edu.stones.data.external.SubjectDetailExternalSource
-import org.edu.stones.data.external.broker.SubjectsBroker
-import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
 import org.edu.stones.data.local.image.ImageLocalDataSource
 import org.edu.stones.data.local.image.ImageLocalDataSourceImpl
+import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
 import org.edu.stones.data.external.dto.ImageGenExternalSourceImpl
 import org.edu.stones.data.external.dto.LegendExternalSourceImpl
 import org.edu.stones.data.external.dto.OpenAiLegendExternalSourceImpl
@@ -32,18 +30,12 @@ import org.edu.stones.presentation.detail.DetailViewModel
 import org.edu.stones.presentation.home.config.GraphConfig
 import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
-import kotlin.collections.List
-
 object SubjectDependencyInjector {
 
     private val localDataSource: SubjectLocalDataSource = SubjectLocalDataSourceImpl()
     val graphConfig: GraphConfig = GraphConfigDefaults.Default
 
-    private val sources: List<SubjectDetailExternalSource> = listOf(
-        GoogleScriptSubjectExternalSource()
-    )
-    private val subjectsBroker = SubjectsBroker(sources)
-    private val subjectRepository = SubjectsRepositoryImpl(subjectsBroker, localDataSource)
+    private val subjectRepository = SubjectsRepositoryImpl(GoogleScriptSubjectExternalSource(), localDataSource)
 
     private val imageSource = ImageGenExternalSourceImpl()
     private val imageLocalDataSource: ImageLocalDataSource = ImageLocalDataSourceImpl()

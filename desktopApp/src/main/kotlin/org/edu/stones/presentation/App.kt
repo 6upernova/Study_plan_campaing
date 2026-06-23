@@ -8,8 +8,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.edu.stones.presentation.home.HomeScreen
 import org.edu.stones.di.SubjectDependencyInjector.getHomeViewModel
 
-import org.edu.stones.data.external.broker.SubjectsBroker
-import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
 
 @Composable
 @Preview
