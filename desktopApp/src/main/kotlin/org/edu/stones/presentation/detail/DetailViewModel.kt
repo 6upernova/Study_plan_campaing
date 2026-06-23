@@ -12,9 +12,6 @@ import org.edu.stones.domain.usecase.GenerateSubjectImageUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
 import org.edu.stones.domain.usecase.GetSubjectLegendUseCase
 import org.edu.stones.domain.usecase.GetSubjectNameUseCase
-import kotlin.Boolean
-import kotlin.String
-
 class DetailViewModel(
     private val getSubjectDetailUseCase: GetSubjectDetailUseCase,
     private val generateSubjectImageUseCase: GenerateSubjectImageUseCase,
@@ -77,7 +74,7 @@ class DetailViewModel(
         val legend: String? = null,
         val isLegendLoading: Boolean = false,
         val loadingAprovNames: Boolean = false,
-        val loadingcourseNames: Boolean = false,
+        val loadingCourseNames: Boolean = false,
         val aprovNames: String? = "Ninguna",
         val courseNames: String? = "Ninguna"
     )
@@ -100,11 +97,11 @@ class DetailViewModel(
 
     fun getCourseNames(codes: String) {
         viewModelScope.launch {
-            detailUiState.value = detailUiState.value.copy(loadingcourseNames = true)
+            detailUiState.value = detailUiState.value.copy(loadingCourseNames = true)
             detailUiState.update { current ->
                 current.copy(
                     courseNames = getSubjectNameUseCase(codes),
-                    loadingcourseNames = false
+                    loadingCourseNames = false
                 )
             }
         }
