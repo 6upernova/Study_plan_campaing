@@ -41,17 +41,21 @@ import org.jetbrains.skia.Image as SkiaImage
 @Composable
 fun GeneralInfoSection(
     subject: Subject,
-    uiState: DetailViewModel.DetailUiState
+    uiState: DetailViewModel.DetailUiState,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp),
-        verticalAlignment = Alignment.Top
+            .fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         PropertiesTable(
             subject = subject,
-            modifier = Modifier.weight(2f).padding(horizontal = 8.dp)
+            modifier = Modifier
+                .weight(2f)
+                .fillMaxHeight()
+                .padding(vertical = 4.dp)
         )
 
         Spacer(Modifier.width(16.dp))
@@ -84,7 +88,7 @@ private fun SubjectImageBox(
         when {
             isImageLoading -> {
                 Box(
-                    modifier = modifier,
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -96,7 +100,7 @@ private fun SubjectImageBox(
                     bitmap = bitmap,
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
-                    modifier = modifier
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
@@ -105,7 +109,7 @@ private fun SubjectImageBox(
                     painter = painterResource("images/detailScreen/fotoBase.png"),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
-                    modifier = modifier
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -141,41 +145,40 @@ private fun PropertiesTable(
             painter = painterResource("images/detailScreen/dataBackground.png"),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
+            modifier = Modifier.matchParentSize()
+
         )
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
-            PropertyRow("Código", subject.codigo)
-            PropertyRow("Nombre", subject.nombre)
-            PropertyRow("Año", subject.anio.toString())
-            PropertyRow("Período", subject.periodo)
-            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
-            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
-            PropertyRow("Inscriptos", subject.inscriptos.toString())
-            PropertyRow("Presencialidad", subject.presencialidad)
-            PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
-        }
+            PropertyRow("Código", subject.codigo, Modifier.weight(1f))
+            PropertyRow("Nombre", subject.nombre, Modifier.weight(1f))
+            PropertyRow("Año", subject.anio.toString(), Modifier.weight(1f))
+            PropertyRow("Período", subject.periodo, Modifier.weight(1f))
+            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString(), Modifier.weight(1f))
+            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio), Modifier.weight(1f))
+            PropertyRow("Inscriptos", subject.inscriptos.toString(), Modifier.weight(1f))
+            PropertyRow("Presencialidad", subject.presencialidad, Modifier.weight(1f))
+            PropertyRow("Cant. aprobados", subject.cantAprobados.toString(), Modifier.weight(1f))}
     }
 }
 
 @Composable
 private fun PropertyRow(
     label: String,
-    value: String
+    value: String,
+    modifier: Modifier = Modifier
 ) {
     val borderColor = Color(0xFF8C7445)
     Box(
-        Modifier.border(
-            width = 1.dp,
-            color = borderColor
-        ))
-    {
+        modifier = modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = borderColor),
+        contentAlignment = Alignment.CenterStart
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+            modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = label,

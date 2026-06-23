@@ -93,7 +93,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.23f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.30f).border(width = 3.dp, color = Color.Red)
                             ) {
                                 GeneralInfoSection(subject, uiState)
                             }
@@ -103,7 +103,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.30f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.20f).border(width = 3.dp, color = Color.Red)
                             ) {
                                 RequirementsSection(subject, viewModel, uiState)
                             }
