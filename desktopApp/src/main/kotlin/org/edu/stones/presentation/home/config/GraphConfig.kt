@@ -23,7 +23,7 @@ data class GraphConfig(
     val strokeWidthFactor: Float = 0.08f,
     val strokeWidthMinDp: Float = 2f,
     val strokeWidthMaxDp: Float = 8f,
-    val fontSizeFactor: Float = 0.1f,
+    val fontSizeFactor: Float = 0.15f,
     val fontSizeMinDp: Float = 8f,
     val fontSizeMaxDp: Float = 14f,
 
