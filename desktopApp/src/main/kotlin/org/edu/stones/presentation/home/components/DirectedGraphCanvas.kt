@@ -21,6 +21,11 @@ import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -67,6 +72,9 @@ fun DirectedGraphCanvas(
 
     val horizontalScrollState = rememberScrollState()
 
+    val hoveredNodeCode = remember { mutableStateOf<String?>(null) }
+    val currentHovered by hoveredNodeCode
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -88,13 +96,21 @@ fun DirectedGraphCanvas(
                     .fillMaxHeight()
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    edges.forEach { edge -> drawDirtPath(edge, config) }
+                    if (currentHovered != null) {
+                        val connected = edges.filter { it.fromCode == currentHovered || it.toCode == currentHovered }
+                        val dimmed = edges.filter { it.fromCode != currentHovered && it.toCode != currentHovered }
+                        dimmed.forEach { edge -> drawDimmedDirtPath(edge, config) }
+                        connected.forEach { edge -> drawHighlightedDirtPath(edge, config) }
+                    } else {
+                        edges.forEach { edge -> drawDirtPath(edge, config) }
+                    }
                 }
 
                 visibleNodes.forEach { node ->
                     StructureNode(
                         node = node,
-                        onClick = { onNodeClick(node.subject.codigo) }
+                        onClick = { onNodeClick(node.subject.codigo) },
+                        hoveredNodeCode = hoveredNodeCode
                     )
                 }
             }
@@ -109,14 +125,18 @@ fun DirectedGraphCanvas(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun StructureNode(
     node: GraphNode,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    hoveredNodeCode: MutableState<String?>
 ) {
     Column(
         modifier = Modifier
             .offset { IntOffset(node.x.toInt(), node.y.toInt()) }
+            .onPointerEvent(PointerEventType.Enter) { hoveredNodeCode.value = node.subject.codigo }
+            .onPointerEvent(PointerEventType.Exit) { if (hoveredNodeCode.value == node.subject.codigo) hoveredNodeCode.value = null }
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -145,6 +165,23 @@ fun DrawScope.drawDirtPath(edge: GraphEdge, config: GraphConfig) {
     val path = buildSmoothPath(edge, config)
     drawPathLayered(path, edge.strokeWidth, config)
     drawPathTexture(path, edge, config)
+}
+
+fun DrawScope.drawHighlightedDirtPath(edge: GraphEdge, config: GraphConfig) {
+    val path = buildSmoothPath(edge, config)
+    drawPath(path, color = config.colorDirtHighlightShadow, style = Stroke(width = edge.strokeWidth * config.strokeShadowMultiplier))
+    drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeDarkMultiplier))
+    drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeMidMultiplier))
+    drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeLightMultiplier))
+    drawPathTexture(path, edge, config)
+}
+
+fun DrawScope.drawDimmedDirtPath(edge: GraphEdge, config: GraphConfig) {
+    val path = buildSmoothPath(edge, config)
+    drawPath(path, color = config.colorDirtShadow.copy(alpha = config.dimmedAlpha), style = Stroke(width = edge.strokeWidth * config.strokeShadowMultiplier))
+    drawPath(path, color = config.colorDirtDark.copy(alpha = config.dimmedAlpha), style = Stroke(width = edge.strokeWidth * config.strokeDarkMultiplier))
+    drawPath(path, color = config.colorDirtMid.copy(alpha = config.dimmedAlpha), style = Stroke(width = edge.strokeWidth * config.strokeMidMultiplier))
+    drawPath(path, color = config.colorDirtLight.copy(alpha = config.dimmedAlpha), style = Stroke(width = edge.strokeWidth * config.strokeLightMultiplier))
 }
 
 fun DrawScope.drawPathLayered(path: Path, strokeWidth: Float, config: GraphConfig) {

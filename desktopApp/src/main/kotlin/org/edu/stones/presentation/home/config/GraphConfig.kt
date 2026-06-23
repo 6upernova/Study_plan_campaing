@@ -35,10 +35,10 @@ data class GraphConfig(
     val headerTopPaddingFactor: Float = 0.6f,
 
     // Title sign
-    val signAspectRatio: Float = 3.5f,
-    val signWidthMinDp: Float = 300f,
-    val signWidthMaxDp: Float = 500f,
-    val titleFontSizeFactor: Float = 0.2f,
+    val signAspectRatio: Float = 2f,
+    val signWidthMinDp: Float = 100f,
+    val signWidthMaxDp: Float = 1000f,
+    val titleFontSizeFactor: Float = 0.1f,
     val titleVerticalOffsetFactor: Float = 0.15f,
     val titleLetterSpacing: Float = 0.1f,
     // Title sign positioning & text alignment (relative 0.0-1.0 within sign)
@@ -46,7 +46,7 @@ data class GraphConfig(
     val signVerticalAlign: Float = 0.0f,        // 0=top, 0.5=center, 1=bottom
     val signHorizontalOffset: Float = 0.0f,     // additional offset relative to sign width
     val signVerticalOffset: Float = 0.0f,       // additional offset relative to sign height
-    val titleTextAlign: Float = 0.5f,           // 0=left, 0.5=center, 1=right (within sign)
+    val titleTextAlign: Float = 0.0f,           // 0=left, 0.5=center, 1=right (within sign)
     val titleTextVerticalAlign: Float = 0.5f,   // 0=top, 0.5=center, 1=bottom (within sign)
     val titleTextOffsetX: Float = 0.0f,         // extra X offset relative to sign width
     val titleTextOffsetY: Float = 0.0f,         // extra Y offset relative to sign height
@@ -63,10 +63,10 @@ data class GraphConfig(
     val routedPathLenMultiplier: Float = 1.15f,
 
     // Path stroke layers
-    val strokeShadowMultiplier: Float = 2.5f,
-    val strokeDarkMultiplier: Float = 2.0f,
-    val strokeMidMultiplier: Float = 1.5f,
-    val strokeLightMultiplier: Float = 1.0f,
+    val strokeShadowMultiplier: Float = 4.5f,
+    val strokeDarkMultiplier: Float = 2.5f,
+    val strokeMidMultiplier: Float = 3.0f,
+    val strokeLightMultiplier: Float = 2.0f,
 
     // Texture
     val textureStepDistance: Float = 15f,
@@ -82,6 +82,12 @@ data class GraphConfig(
     val colorDirtLight: Color = Color(0xFFA1887F),
     val colorTitleText: Color = Color(0xFFF5E6C8),
     val backgroundAlpha: Float = 0.8f,
+
+    // Highlight (on node hover)
+    val colorDirtHighlight: Color = Color(0xFFFFD54F),
+    val colorDirtHighlightShadow: Color = Color(0x80FFD54F),
+    val highlightStrokeMultiplier: Float = 5.0f,
+    val dimmedAlpha: Float = 0.25f,
 
     // Window
     val windowWidthDp: Int = 900,
