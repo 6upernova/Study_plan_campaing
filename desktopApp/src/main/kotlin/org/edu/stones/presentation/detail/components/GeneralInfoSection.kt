@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -190,10 +193,46 @@ private fun PropertyRow(
                 color = borderColor,
                 thickness = 1.dp
             )
-            Text(
+            AutoResizingText(
                 text = value,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp)
+                modifier = Modifier
+                    .weight(1.5f)
+                    .padding(horizontal = 4.dp),
+                color = Color.Black
             )
         }
     }
+}
+
+@Composable
+private fun AutoResizingText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    maxLines: Int = 1
+) {
+    val defaultFontSize = 14.sp
+    val minFontSize = 8.sp
+
+    var fontSize by remember(text) { mutableStateOf(defaultFontSize) }
+    var readyToDraw by remember(text) { mutableStateOf(false) }
+
+    Text(
+        text = text,
+        color = color,
+        modifier = modifier.graphicsLayer {
+            alpha = if (readyToDraw) 1f else 0f
+        },
+        fontSize = fontSize,
+        maxLines = maxLines,
+        overflow = TextOverflow.Clip,
+        onTextLayout = { textLayoutResult ->
+
+            if (textLayoutResult.hasVisualOverflow && fontSize > minFontSize) {
+                fontSize = (fontSize.value - 1f).sp
+            } else {
+                readyToDraw = true
+            }
+        }
+    )
 }

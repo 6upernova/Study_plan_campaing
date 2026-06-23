@@ -44,7 +44,7 @@ fun StatisticsSection(
 ) {
 
     Row(
-        modifier = Modifier.fillMaxSize() //Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+        modifier = Modifier.fillMaxSize()
     ) {
         ApprovalCard(
             percentage = approvalPercentage(subject),

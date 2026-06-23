@@ -95,7 +95,7 @@ fun SubjectDetailScreen(
                                     .fillMaxWidth()
                                     .weight(0.30f).border(width = 3.dp, color = Color.Red)
                             ) {
-                                GeneralInfoSection(subject, uiState)
+                                GeneralInfoSection(subject, uiState,modifier)
                             }
 
                             Spacer(Modifier.height(8.dp))
@@ -105,7 +105,7 @@ fun SubjectDetailScreen(
                                     .fillMaxWidth()
                                     .weight(0.20f).border(width = 3.dp, color = Color.Red)
                             ) {
-                                RequirementsSection(subject, viewModel, uiState)
+                                RequirementsSection(subject, viewModel, uiState,modifier)
                             }
                             Spacer(Modifier.height(8.dp))
 
