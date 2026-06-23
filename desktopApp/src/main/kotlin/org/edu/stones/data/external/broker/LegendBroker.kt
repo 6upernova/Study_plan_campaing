@@ -12,7 +12,7 @@ class LegendBroker(
     override suspend fun generate(prompt: String): String? {
         if (sources.isEmpty()) return null
         val startIndex = Math.floorMod(counter.getAndIncrement(), sources.size)
-        // Intenta desde el índice round-robin, luego hace fallback al resto
+
         for (i in sources.indices) {
             val source = sources[(startIndex + i) % sources.size]
             val result = source.generate(prompt)

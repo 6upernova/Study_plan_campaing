@@ -47,7 +47,7 @@ class PreloadSubjectImagesUseCaseImplTest {
         val generate = object : GenerateSubjectImageUseCase {
             override suspend fun invoke(subject: Subject): ByteArray? {
                 val n = intentos.merge(subject.codigo, 1, Int::plus)!!
-                return if (n >= 2) byteArrayOf(1) else null // falla la 1ra, ok la 2da
+                return if (n >= 2) byteArrayOf(1) else null
             }
         }
         val preload = PreloadSubjectImagesUseCaseImpl(generate, delayBetweenRequestsMs = 0, maxAttemptsPerSubject = 3)
@@ -63,7 +63,7 @@ class PreloadSubjectImagesUseCaseImplTest {
         val generate = object : GenerateSubjectImageUseCase {
             override suspend fun invoke(subject: Subject): ByteArray? {
                 intentos.merge(subject.codigo, 1, Int::plus)
-                return null // siempre falla
+                return null
             }
         }
         val preload = PreloadSubjectImagesUseCaseImpl(generate, delayBetweenRequestsMs = 0, maxAttemptsPerSubject = 3)

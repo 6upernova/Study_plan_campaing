@@ -10,7 +10,7 @@ class PreloadSubjectImagesUseCaseImpl(
 ) : PreloadSubjectImagesUseCase {
 
     override suspend fun invoke(subjects: List<Subject>) {
-        // materia -> intentos hechos
+
         val pending = subjects.associateWith { 0 }.toMutableMap()
 
         while (pending.isNotEmpty()) {
@@ -22,7 +22,7 @@ class PreloadSubjectImagesUseCaseImpl(
                 } else {
                     val intentos = (pending[subject] ?: 0) + 1
                     if (intentos >= maxAttemptsPerSubject) {
-                        pending.remove(subject) // me rindo con esta, sigo con el resto
+                        pending.remove(subject)
                     } else {
                         pending[subject] = intentos
                     }

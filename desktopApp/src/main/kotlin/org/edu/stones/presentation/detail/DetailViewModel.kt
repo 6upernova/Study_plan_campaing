@@ -47,7 +47,6 @@ class DetailViewModel(
         }
     }
 
-
     private fun loadSubjectLegend(subject: Subject) {
         viewModelScope.launch {
             detailUiState.value = detailUiState.value.copy(isLegendLoading = true)

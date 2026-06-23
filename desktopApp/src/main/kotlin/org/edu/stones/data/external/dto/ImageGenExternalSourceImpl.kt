@@ -14,12 +14,9 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import org.edu.stones.data.external.ImageGenExternalSource
 
-
-
 class ImageGenExternalSourceImpl(
     private val clientProvider: () -> HttpClient = { createImageHttpClient() },
-    // Una sola llamada de red (status + bytes). Inyectable para poder testear la
-    // logica de reintentos sin tocar la red.
+
     private val bytesProvider: suspend (HttpClient, String) -> Pair<HttpStatusCode, ByteArray> =
         { client, prompt ->
             val response = client.get {

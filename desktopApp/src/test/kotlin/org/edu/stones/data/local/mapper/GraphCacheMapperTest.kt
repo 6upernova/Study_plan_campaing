@@ -32,7 +32,6 @@ class GraphCacheMapperTest {
         assertEquals(graph.vertexSet().map { it.codigo }.toSet(), restored.vertexSet().map { it.codigo }.toSet())
         assertEquals(graph.edgeSet().size, restored.edgeSet().size)
 
-        // Las mismas relaciones source->target
         val restoredEdges = restored.edgeSet().map {
             restored.getEdgeSource(it).codigo to restored.getEdgeTarget(it).codigo
         }.toSet()

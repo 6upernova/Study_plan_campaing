@@ -2,10 +2,6 @@ package org.edu.stones
 
 import org.edu.stones.domain.entity.Subject
 
-/**
- * Crea un [Subject] de prueba con valores por defecto razonables.
- * Cada test solo sobreescribe los campos que le importan.
- */
 fun subject(
     codigo: String = "MAT001",
     nombre: String = "Materia $codigo",

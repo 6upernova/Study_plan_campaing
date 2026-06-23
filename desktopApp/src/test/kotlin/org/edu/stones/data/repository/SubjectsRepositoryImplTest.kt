@@ -1,7 +1,6 @@
 package org.edu.stones.data.repository
 
 import org.edu.stones.data.external.SubjectDetailExternalSource
-import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.local.subjects.SubjectLocalDataSource
 import org.edu.stones.data.local.subjects.CachedGraph
 import org.edu.stones.domain.entity.Subject
@@ -25,7 +24,7 @@ private val emptySource = object : SubjectDetailExternalSource {
 class SubjectsRepositoryImplTest {
 
     private fun repo(): SubjectsRepositoryImpl =
-        SubjectsRepositoryImpl(SubjectsBroker(listOf(emptySource)), FakeLocalDataSource())
+        SubjectsRepositoryImpl(emptySource, FakeLocalDataSource())
 
     private fun edgesOf(subjects: List<Subject>): Set<Pair<String, String>> {
         val graph = repo().buildGraph(subjects)

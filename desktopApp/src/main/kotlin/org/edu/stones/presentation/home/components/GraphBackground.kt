@@ -17,7 +17,7 @@ import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
 @Composable
 fun GraphBackground(
-    imagePath: String = "images/background.png",
+    imagePath: String = "images/homeScreen/background.png",
     alpha: Float = 1f,
     config: GraphConfig = GraphConfigDefaults.Default
 ) {

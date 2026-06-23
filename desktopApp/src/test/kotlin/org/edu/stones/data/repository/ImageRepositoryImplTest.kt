@@ -55,7 +55,6 @@ class ImageRepositoryImplTest {
         val sourceA = CountingSource(byteArrayOf(5, 6, 7))
         ImageRepositoryImpl(sourceA, cache).getImageForPrompt("persistente")
 
-        // repo nuevo => memoria vacia, mismo cacheDir
         val sourceB = CountingSource(byteArrayOf(9, 9, 9))
         val resultB = ImageRepositoryImpl(sourceB, cache).getImageForPrompt("persistente")
 

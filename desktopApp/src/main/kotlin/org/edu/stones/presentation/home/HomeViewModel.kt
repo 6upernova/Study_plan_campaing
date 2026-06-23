@@ -30,7 +30,7 @@ class HomeViewModel(
     val homeStateFlow: StateFlow<HomeUiState> = homeStateMutableStateFlow.asStateFlow()
 
     fun getAllSubjects() {
-        // Default desktop constraints for initial load
+
         updateLayoutConstraints(1200f, 800f, 1f)
     }
 

@@ -17,16 +17,13 @@ class ImageRepositoryImpl(
     override suspend fun getImageForPrompt(prompt: String): ByteArray? {
         val key = diskCache.cacheKey(prompt)
 
-        // 1. memoria
         mutex.withLock { memory[key] }?.let { return it }
 
-        // 2. disco -> calienta memoria
         diskCache.get(key).getOrNull()?.let { fromDisk ->
             mutex.withLock { memory[key] = fromDisk }
             return fromDisk
         }
 
-        // 3. red -> escribe disco + memoria (solo si exitoso)
         val generated = source.generate(prompt) ?: return null
         diskCache.put(key, generated).onSuccess {
             mutex.withLock { memory[key] = generated }
