@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,7 +67,7 @@ fun HomeScreen(
         }
 
         if (uiState.isLoading) {
-            CircularProgressIndicator()
+            showText("Diagramando Carrera...")
         } else {
             val layoutData = uiState.graphLayoutData
 
@@ -207,5 +208,24 @@ fun SubjectDetailWindow(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun showText(
+    text: String,
+    modifier: Modifier = Modifier
+){
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        GraphBackground()
+
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 24.sp
+        )
     }
 }
