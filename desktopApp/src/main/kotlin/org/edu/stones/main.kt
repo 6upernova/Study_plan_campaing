@@ -1,5 +1,6 @@
 package org.edu.stones
 
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
@@ -11,6 +12,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "study_plan_campaing",
         state = WindowState(placement = WindowPlacement.Maximized),
+        icon = painterResource("images/icon.png")
     ) {
         App()
     }

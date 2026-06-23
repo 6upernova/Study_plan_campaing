@@ -23,10 +23,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -34,12 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.edu.stones.di.SubjectDependencyInjector
-import org.edu.stones.domain.entity.Subject
 import org.edu.stones.presentation.AppTypography
 import org.edu.stones.presentation.detail.DetailViewModel
 import org.edu.stones.presentation.home.components.DirectedGraphCanvas
@@ -153,7 +149,7 @@ private fun TitleHeader(
             .size(signWidthDp.dp, heightDp.dp)
     ) {
         Image(
-            painter = painterResource("images/TitleSign.png"),
+            painter = painterResource("images/homeScreen/TitleSign.png"),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.matchParentSize()

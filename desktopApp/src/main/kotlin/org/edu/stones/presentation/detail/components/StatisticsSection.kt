@@ -257,13 +257,15 @@ private fun AttendanceCard(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "PRESENCIALIDAD",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                    text = "PRESENCIALIDAD OBLIGATORIA/RECOMENDADA",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.weight(0.3f))
@@ -279,32 +281,6 @@ private fun AttendanceCard(
 
                 Text(
                     text = modality,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
-                )
-
-                Spacer(Modifier.weight(0.2f))
-
-                Canvas(
-                    modifier = Modifier.fillMaxWidth().height(8.dp)
-                ) {
-                    drawLine(
-                        color = Color.LightGray,
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width, size.height / 2),
-                        strokeWidth = size.height
-                    )
-                    drawLine(
-                        color = Color(0xFF795548),
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width * percentage, size.height / 2),
-                        strokeWidth = size.height
-                    )
-                }
-
-                Spacer(Modifier.weight(0.2f))
-
-                Text(
-                    text = "${(percentage * 100).toInt()}%",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
             }

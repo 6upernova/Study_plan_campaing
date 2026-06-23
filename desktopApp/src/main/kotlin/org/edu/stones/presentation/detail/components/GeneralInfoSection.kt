@@ -64,7 +64,6 @@ fun GeneralInfoSection(
             imageBytes = uiState.imageBytes,
             isImageLoading = uiState.isImageLoading,
             modifier = Modifier
-                .weight(1f)
                 .fillMaxHeight()
         )
     }
@@ -82,7 +81,7 @@ private fun SubjectImageBox(
         imageBytes?.let { decodeImage(it) }
     }
     Box(
-        modifier = modifier,
+        modifier = modifier.aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
         when {
@@ -99,7 +98,7 @@ private fun SubjectImageBox(
                 Image(
                     bitmap = bitmap,
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -224,7 +223,7 @@ private fun AutoResizingText(
     maxLines: Int = 1
 ) {
     val defaultFontSize = 14.sp
-    val minFontSize = 8.sp
+    val minFontSize = 10.sp
 
     var fontSize by remember(text) { mutableStateOf(defaultFontSize) }
     var readyToDraw by remember(text) { mutableStateOf(false) }
