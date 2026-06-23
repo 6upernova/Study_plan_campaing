@@ -7,7 +7,6 @@ import org.edu.stones.domain.usecase.GetAllSubjectsUseCase
 import org.edu.stones.domain.usecase.GetSubjectDetailUseCase
 import org.edu.stones.domain.usecase.PreloadSubjectImagesUseCase
 import org.edu.stones.domain.usecase.PreloadSubjectLegendsUseCase
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,14 +52,6 @@ class HomeViewModel(
 
             launch { preloadSubjectImagesUseCase(subjects) }
             launch { preloadSubjectLegendsUseCase(subjects) }
-        }
-    }
-
-    private fun determatePeriod(periodo: String): Int {
-        if (periodo == "Primer Cuatrimestre") {
-            return 1
-        } else {
-            return 2
         }
     }
 
