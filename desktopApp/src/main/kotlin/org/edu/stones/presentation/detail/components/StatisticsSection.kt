@@ -313,7 +313,9 @@ private fun AttendanceCard(
     }
 }
 
-private fun approvalPercentage(subject: Subject): Float {
+private fun approvalPercentage(
+    subject: Subject
+): Float {
     val approvalPercentage = if (subject.inscriptos > 0) {
     subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
     } else {

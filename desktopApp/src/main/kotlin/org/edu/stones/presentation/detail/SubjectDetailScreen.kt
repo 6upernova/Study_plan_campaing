@@ -98,7 +98,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.20f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.18f).border(width = 3.dp, color = Color.Red)
                             ) {
                                 RequirementsSection(subject, viewModel, uiState,modifier)
                             }
@@ -117,7 +117,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.15f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.17f).border(width = 3.dp, color = Color.Red)
                             ) {
                                 LegendSection(uiState.legend, uiState.isLegendLoading)
                             }

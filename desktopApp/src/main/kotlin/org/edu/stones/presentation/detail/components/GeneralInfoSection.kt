@@ -242,7 +242,7 @@ private fun AutoResizingText(
         onTextLayout = { textLayoutResult ->
 
             if (textLayoutResult.hasVisualOverflow && fontSize > minFontSize) {
-                fontSize = (fontSize.value - 1f).sp
+                fontSize = (fontSize.value - 0.2f).sp
             } else {
                 readyToDraw = true
             }
