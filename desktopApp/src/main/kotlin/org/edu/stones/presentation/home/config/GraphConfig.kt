@@ -72,7 +72,7 @@ data class GraphConfig(
     val colorDirtDark: Color = Color(0xFF5D4037),
     val colorDirtMid: Color = Color(0xFF8D6E63),
     val colorDirtLight: Color = Color(0xFFA1887F),
-    val colorTitleText: Color = Color(0xFFF5E6C8),
+    val colorTitleText: Color = Color(0xFFFFD54F),
     val backgroundAlpha: Float = 0.8f,
 
     val colorDirtHighlight: Color = Color(0xFFFFD54F),
