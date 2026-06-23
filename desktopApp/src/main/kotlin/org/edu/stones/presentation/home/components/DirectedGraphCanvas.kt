@@ -164,7 +164,6 @@ private fun StructureNode(
 fun DrawScope.drawDirtPath(edge: GraphEdge, config: GraphConfig) {
     val path = buildSmoothPath(edge, config)
     drawPathLayered(path, edge.strokeWidth, config)
-    drawPathTexture(path, edge, config)
 }
 
 fun DrawScope.drawHighlightedDirtPath(edge: GraphEdge, config: GraphConfig) {
@@ -173,7 +172,6 @@ fun DrawScope.drawHighlightedDirtPath(edge: GraphEdge, config: GraphConfig) {
     drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeDarkMultiplier))
     drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeMidMultiplier))
     drawPath(path, color = config.colorDirtHighlight, style = Stroke(width = edge.strokeWidth * config.strokeLightMultiplier))
-    drawPathTexture(path, edge, config)
 }
 
 fun DrawScope.drawDimmedDirtPath(edge: GraphEdge, config: GraphConfig) {
@@ -191,26 +189,7 @@ fun DrawScope.drawPathLayered(path: Path, strokeWidth: Float, config: GraphConfi
     drawPath(path, color = config.colorDirtLight, style = Stroke(width = strokeWidth * config.strokeLightMultiplier))
 }
 
-fun DrawScope.drawPathTexture(path: Path, edge: GraphEdge, config: GraphConfig) {
-    val rng = SimpleRNG(edge.fromCode.hashCode())
 
-    val points = buildPointList(edge)
-    val approxLen = estimatePathLength(points, config)
-    val step = config.textureStepDistance
-    var t = 0f
-    while (t <= 1f) {
-        val pt = sampleCatmullRom(points, t, config.catmullTension, config)
-        val pebbleR = rng.next() % (config.pebbleRadiusMax - config.pebbleRadiusMin + 1) + config.pebbleRadiusMin
-        val pebbleX = pt.x + (rng.next() % (config.pebbleJitterRange * 2 + 1) - config.pebbleJitterRange)
-        val pebbleY = pt.y + (rng.next() % (config.pebbleJitterRange * 2 + 1) - config.pebbleJitterRange)
-        drawCircle(
-            color = config.colorDirtDark.copy(alpha = config.pebbleAlpha),
-            radius = pebbleR.toFloat(),
-            center = Offset(pebbleX, pebbleY)
-        )
-        t += step / approxLen.coerceAtLeast(1f)
-    }
-}
 
 fun estimatePathLength(points: List<Offset>, config: GraphConfig): Float {
     if (points.size <= 2) {

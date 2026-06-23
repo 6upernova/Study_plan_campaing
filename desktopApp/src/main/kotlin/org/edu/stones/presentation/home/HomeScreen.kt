@@ -3,6 +3,7 @@
 package org.edu.stones.presentation.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -112,13 +113,15 @@ fun HomeScreen(
                                         .padding(top = (headerHeightDp * config.headerTopPaddingFactor).dp)
                                 ) {
                                     DirectedGraphCanvas(
-                                        modifier = Modifier.fillMaxSize(),
+                                        modifier = Modifier.fillMaxSize().border(width = 5.dp, color = Color.Gray),
                                         nodes = layoutData.nodes,
                                         edges = layoutData.edges,
                                         onNodeClick = { id ->
                                             openedWindows.value += id
                                         },
-                                        config = config
+                                        config = config,
+
+
                                     )
                                 }
                             }

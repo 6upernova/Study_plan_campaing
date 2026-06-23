@@ -72,7 +72,7 @@ data class GraphConfig(
     val textureStepDistance: Float = 15f,
     val pebbleRadiusMin: Int = 1,
     val pebbleRadiusMax: Int = 3,
-    val pebbleJitterRange: Int = 3,
+    val pebbleJitterRange: Int = 1,
     val pebbleAlpha: Float = 0.3f,
 
     // Colors (Compose Color)
