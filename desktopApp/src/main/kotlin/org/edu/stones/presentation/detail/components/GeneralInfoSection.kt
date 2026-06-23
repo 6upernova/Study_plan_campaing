@@ -194,7 +194,6 @@ private fun PropertyRow(
                 thickness = 1.dp
             )
             if (autoSize) {
-                // Solo reduce el tamaño si es estrictamente necesario (Ej: nombres kilométricos)
                 AutoResizingText(
                     text = value,
                     modifier = Modifier

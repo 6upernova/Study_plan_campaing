@@ -48,7 +48,6 @@ fun HeaderSection(
     Box(
         modifier = Modifier
             .fillMaxSize(),
-            //.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -72,7 +71,7 @@ private fun AutoResizingTitle(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified
 ) {
-    // Definimos tamaños ideales para un título de cabecera
+
     val defaultFontSize = 22.sp
     val minFontSize = 12.sp
 
@@ -80,19 +79,17 @@ private fun AutoResizingTitle(
 
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center // Fuerza a que el contenedor interno de texto se posicione al medio exacto
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = color,
             fontSize = fontSize,
-            // Permitimos hasta 2 líneas por si el nombre de la materia es extremadamente largo (ej: "Taller de Programación Orientada a Objetos")
             maxLines = 2,
             overflow = TextOverflow.Clip,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
             onTextLayout = { textLayoutResult ->
-                // El texto se reduce si se pasa del ancho o si excede las líneas máximas permitidas
                 if ((textLayoutResult.didOverflowWidth || textLayoutResult.didOverflowHeight) && fontSize > minFontSize) {
                     fontSize = (fontSize.value - 0.5f).sp
                 } else if (!textLayoutResult.didOverflowWidth && !textLayoutResult.didOverflowHeight && fontSize < defaultFontSize) {

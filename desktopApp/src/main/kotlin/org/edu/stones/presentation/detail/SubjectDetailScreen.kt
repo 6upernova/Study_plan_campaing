@@ -63,12 +63,7 @@ fun SubjectDetailScreen(
             ) {
                 when {
                     uiState.isLoading -> {
-                        Box(
-                            modifier = modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            showText("Cargando Materia...")
-                        }
+                        showText("Cargando Materia...",modifier)
                     }
 
                     uiState.subject != null -> {
@@ -142,12 +137,20 @@ fun SubjectDetailScreen(
 }
 
 @Composable
-private fun showText(text: String){
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        fontSize = 24.sp
-    )
+private fun showText(
+    text: String,
+    modifier: Modifier = Modifier
+){
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 24.sp
+        )
+    }
 }
 
 @Composable
