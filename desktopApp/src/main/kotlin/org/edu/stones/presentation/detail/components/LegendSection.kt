@@ -61,7 +61,7 @@ fun LegendSection(
         )
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().padding(top = 3.dp, bottom = 0.dp, start = 3.dp, end = 3.dp)
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -72,6 +72,7 @@ fun LegendSection(
             )
 
             Spacer(Modifier.weight(0.2f))
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,7 +98,7 @@ fun LegendSection(
                 }
             }
 
-            Spacer(Modifier.weight(0.1f))
+            //Spacer(Modifier.weight(0.1f))
         }
     }
 }
