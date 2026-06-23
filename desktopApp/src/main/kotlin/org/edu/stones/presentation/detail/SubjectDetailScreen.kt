@@ -76,27 +76,56 @@ fun SubjectDetailScreen(
 
                         Column(
                             modifier = modifier
-                                .fillMaxHeight()
+                                .fillMaxSize()
                                 .padding(16.dp)
                         ) {
 
-                            HeaderSection(subject.nombre)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.12f).border(width = 3.dp, color = Color.Red),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                HeaderSection(subject.nombre)
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.23f).border(width = 3.dp, color = Color.Red)
+                            ) {
+                                GeneralInfoSection(subject, uiState)
+                            }
 
                             Spacer(Modifier.height(8.dp))
 
-                            GeneralInfoSection(subject, uiState)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.30f).border(width = 3.dp, color = Color.Red)
+                            ) {
+                                RequirementsSection(subject, viewModel, uiState)
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.20f).border(width = 3.dp, color = Color.Red)
+                            ) {
+                                StatisticsSection(subject)
+                            }
 
                             Spacer(Modifier.height(8.dp))
 
-                            RequirementsSection(subject,viewModel, uiState)
-
-                            Spacer(Modifier.height(8.dp))
-
-                            StatisticsSection(subject)
-
-                            Spacer(Modifier.height(8.dp))
-
-                            LegendSection(uiState.legend, uiState.isLegendLoading)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.15f).border(width = 3.dp, color = Color.Red)
+                            ) {
+                                LegendSection(uiState.legend, uiState.isLegendLoading)
+                            }
                         }
                     }
 
