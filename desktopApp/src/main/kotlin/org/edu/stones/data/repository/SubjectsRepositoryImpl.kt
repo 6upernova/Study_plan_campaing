@@ -21,11 +21,9 @@ class SubjectsRepositoryImpl(
         val isCacheValid = localDataSource.isCacheValid().getOrElse { false }
 
         if (cachedGraph != null && isCacheValid) {
-            println("Cache hit - returning cached graph")
             return cachedGraph.toDomainGraph()
         }
 
-        println("Cache miss - fetching from remote source")
         val graph = forceRefresh()
 
         return graph
@@ -70,7 +68,6 @@ class SubjectsRepositoryImpl(
 
         TransitiveReduction.INSTANCE.reduce(graph)
 
-        println("Graph built with ${graph.vertexSet()} vertices and ${graph.edgeSet()} edges")
         return graph
     }
 
