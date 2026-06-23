@@ -21,4 +21,3 @@ class GetSubjectNameUseCaseImpl(
             ?: "Ninguna"
     }
 }
-

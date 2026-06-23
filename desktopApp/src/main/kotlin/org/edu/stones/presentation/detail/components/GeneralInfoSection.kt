@@ -40,7 +40,6 @@ import org.edu.stones.presentation.detail.DetailViewModel.DetailUiState
 import org.edu.stones.presentation.detail.DetailViewModel
 import org.jetbrains.skia.Image as SkiaImage
 
-
 @Composable
 fun GeneralInfoSection(
     subject: Subject,

@@ -41,6 +41,6 @@ data class CacheMetadata(
 )
 
 object CacheConstants {
-    const val CACHE_VALIDITY_MS = 24 * 60 * 60 * 1000L // 24 hours
+    const val CACHE_VALIDITY_MS = 24 * 60 * 60 * 1000L
     const val DEFAULT_VERSION = "1.0"
 }

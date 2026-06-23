@@ -17,14 +17,13 @@ class SubjectCreatureHelperTest {
 
     @Test
     fun `selectCreature siempre devuelve indice dentro de rango para cualquier anio`() {
-        // Incluye anios fuera de 1..4 (rama else) y un codigo cuyo hashCode es negativo,
-        // para verificar que floorMod nunca produce un indice negativo.
+
         val anios = listOf(1, 2, 3, 4, 5, 99)
         val codigos = listOf("A", "ZZZ", "codigo-con-hash-negativo", "1234567890")
 
         for (anio in anios) {
             for (codigo in codigos) {
-                // No debe lanzar IndexOutOfBounds
+
                 val creature = selectCreature(subject(codigo = codigo, anio = anio))
                 assertTrue(creature.nameEn.isNotEmpty())
                 assertTrue(creature.nameEs.isNotEmpty())
@@ -34,8 +33,7 @@ class SubjectCreatureHelperTest {
 
     @Test
     fun `selectCreature usa listas distintas por anio`() {
-        // El primer anio usa goblins/ladrones; el quinto usa dragones/quimeras.
-        // Con el mismo codigo, distinto anio debe poder dar criaturas de pools distintos.
+
         val anio1Creatures = (1..5).map { selectCreature(subject(codigo = "C$it", anio = 1)).nameEn }
         val anio5Creatures = (1..5).map { selectCreature(subject(codigo = "C$it", anio = 5)).nameEn }
 
@@ -52,7 +50,7 @@ class SubjectCreatureHelperTest {
 
     @Test
     fun `creatureDifficulty con cero inscriptos es EASY`() {
-        // approvalRate = 1 (por la guarda inscriptos > 0) y nota alta => score bajo.
+
         val s = subject(inscriptos = 0, cantAprobados = 0, notasPromedio = 9.0)
         assertEquals(CreatureDifficulty.EASY, creatureDifficulty(s))
     }
@@ -71,7 +69,7 @@ class SubjectCreatureHelperTest {
 
     @Test
     fun `creatureDifficulty caso intermedio es MEDIUM`() {
-        // score apunta a la franja 0.33..0.55
+
         val s = subject(notasPromedio = 6.0, inscriptos = 100, cantAprobados = 55)
         assertEquals(CreatureDifficulty.MEDIUM, creatureDifficulty(s))
     }

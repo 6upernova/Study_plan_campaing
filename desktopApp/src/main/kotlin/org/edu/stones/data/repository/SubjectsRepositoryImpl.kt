@@ -62,7 +62,7 @@ class SubjectsRepositoryImpl(
                 }
             }
         }
-        val edgesWithoutTransitive = edgesToAdd.toList() // TEMP TEST: sin eliminar transitivas
+        val edgesWithoutTransitive = edgesToAdd.toList()
 
         edgesWithoutTransitive.forEach { (source, target) ->
             graph.addEdge(source, target)

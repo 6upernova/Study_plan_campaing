@@ -23,7 +23,6 @@ data class DTORemoteMaterias(
     @SerialName("Abreviatura")val abreviatura: String = "",
 )
 
-
 fun DTORemoteMaterias.toDomain(): Subject =
     Subject(
         codigo = codigo,

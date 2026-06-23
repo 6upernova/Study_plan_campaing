@@ -82,7 +82,6 @@ class SubjectLocalDataSourceImplTest {
     fun `isCacheValid es false cuando el contenido fue modificado (hash no coincide)`() = runTest {
         dataSource.saveGraph(graph()).getOrThrow()
 
-        // Manipulamos el archivo de datos sin actualizar el metadata -> hash difiere
         val cacheFile = File(File(baseDir, ".cache"), "graph_cache.json")
         cacheFile.writeText(cacheFile.readText() + "\n// tampered")
 

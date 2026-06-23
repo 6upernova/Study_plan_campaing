@@ -62,7 +62,7 @@ fun HomeScreen(
         typography = AppTypography
     ) {
         val openedWindows = remember { mutableStateOf<List<String>>(emptyList()) }
-        
+
         LaunchedEffect(Unit) {
             viewModel.getAllSubjects()
         }
@@ -173,7 +173,6 @@ private fun TitleHeader(
     }
 }
 
-
 @Composable
 fun SubjectDetailWindow(
     subjectCode: String,
@@ -192,7 +191,6 @@ fun SubjectDetailWindow(
         MaterialTheme {
             Surface {
                 val detailViewModel = SubjectDependencyInjector.getDetailViewModel(subjectCode)
-
 
                 LaunchedEffect(subjectCode) {
                     detailViewModel.getSubject(subjectCode)

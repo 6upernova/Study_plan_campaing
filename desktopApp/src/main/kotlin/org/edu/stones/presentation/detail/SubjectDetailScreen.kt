@@ -41,7 +41,6 @@ import org.edu.stones.presentation.detail.components.RequirementsSection
 import org.edu.stones.presentation.detail.components.StatisticsSection
 import org.jetbrains.skia.Image as SkiaImage
 
-
 @Composable
 fun SubjectDetailScreen(
     uiState: DetailViewModel.DetailUiState,

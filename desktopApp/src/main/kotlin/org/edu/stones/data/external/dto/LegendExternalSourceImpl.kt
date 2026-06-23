@@ -17,7 +17,7 @@ import org.edu.stones.data.external.LegendExternalSource
 class LegendExternalSourceImpl : LegendExternalSource {
 
     private val client = createLegendHttpClient()
-    // Pollinations free tier: max 1 request simultáneo por IP
+
     private val semaphore = Semaphore(1)
 
     override suspend fun generate(prompt: String): String? {

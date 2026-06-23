@@ -14,7 +14,7 @@ fun selectCreature(subject: Subject): SubjectCreature {
 fun creatureDifficulty(subject: Subject): CreatureDifficulty {
     val approvalRate = if (subject.inscriptos > 0)
         subject.cantAprobados.toFloat() / subject.inscriptos.toFloat() else 1f
-    // Promedio de nota baja + tasa de aprobación baja = más difícil
+
     val score = (10.0 - subject.notasPromedio) / 10.0 * 0.5 + (1.0 - approvalRate) * 0.5
     return when {
         score < 0.33 -> CreatureDifficulty.EASY

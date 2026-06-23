@@ -8,4 +8,3 @@ class GetSubjectDetailUseCaseImpl(
 ) : GetSubjectDetailUseCase {
     override suspend operator fun invoke(id: String): Subject? = subjectRepository.getSubjectDetail(id)
 }
-

@@ -11,17 +11,9 @@ import org.edu.stones.di.SubjectDependencyInjector.getHomeViewModel
 import org.edu.stones.data.external.broker.SubjectsBroker
 import org.edu.stones.data.external.dto.GoogleScriptSubjectExternalSource
 
-
 @Composable
 @Preview
 fun App() {
-//	LaunchedEffect(Unit) {
-//		val google = GoogleScriptSubjectExternalSource()
-//		val broker = SubjectsBroker(listOf(google))
-//
-//		val lista = broker.getSubjectsByCareer("ISI")
-//		println(lista)
-//	}
 
 	startApp()
 }

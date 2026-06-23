@@ -32,7 +32,6 @@ import org.edu.stones.presentation.detail.DetailViewModel
 import org.edu.stones.presentation.home.config.GraphConfig
 import org.edu.stones.presentation.home.config.GraphConfigDefaults
 
-
 import kotlin.collections.List
 
 object SubjectDependencyInjector {
