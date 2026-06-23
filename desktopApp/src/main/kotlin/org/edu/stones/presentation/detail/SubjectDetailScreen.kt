@@ -86,7 +86,7 @@ fun SubjectDetailScreen(
                                     .weight(0.12f).border(width = 3.dp, color = Color.Red),
                                 contentAlignment = Alignment.CenterStart
                             ) {
-                                HeaderSection(subject.nombre)
+                                HeaderSection(subject.nombre,modifier)
                             }
                             Spacer(Modifier.height(8.dp))
 

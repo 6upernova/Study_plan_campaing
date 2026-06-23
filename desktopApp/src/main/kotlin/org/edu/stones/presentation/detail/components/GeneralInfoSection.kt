@@ -48,9 +48,7 @@ fun GeneralInfoSection(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         PropertiesTable(
@@ -154,15 +152,16 @@ private fun PropertiesTable(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            PropertyRow("Código", subject.codigo, Modifier.weight(1f))
-            PropertyRow("Nombre", subject.nombre, Modifier.weight(1f))
-            PropertyRow("Año", subject.anio.toString(), Modifier.weight(1f))
-            PropertyRow("Período", subject.periodo, Modifier.weight(1f))
-            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString(), Modifier.weight(1f))
-            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio), Modifier.weight(1f))
-            PropertyRow("Inscriptos", subject.inscriptos.toString(), Modifier.weight(1f))
-            PropertyRow("Presencialidad", subject.presencialidad, Modifier.weight(1f))
-            PropertyRow("Cant. aprobados", subject.cantAprobados.toString(), Modifier.weight(1f))}
+            PropertyRow("Código", subject.codigo, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Nombre", subject.nombre, Modifier.weight(1.5f), autoSize = true)
+            PropertyRow("Año", subject.anio.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Período", subject.periodo, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Inscriptos", subject.inscriptos.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Presencialidad", subject.presencialidad, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Cant. aprobados", subject.cantAprobados.toString(), Modifier.weight(1f), autoSize = false)
+        }
     }
 }
 
@@ -170,7 +169,8 @@ private fun PropertiesTable(
 private fun PropertyRow(
     label: String,
     value: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    autoSize: Boolean = false
 ) {
     val borderColor = Color(0xFF8C7445)
     Box(
@@ -181,7 +181,7 @@ private fun PropertyRow(
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = label,
@@ -193,13 +193,27 @@ private fun PropertyRow(
                 color = borderColor,
                 thickness = 1.dp
             )
-            AutoResizingText(
-                text = value,
-                modifier = Modifier
-                    .weight(1.5f)
-                    .padding(horizontal = 4.dp),
-                color = Color.Black
-            )
+            if (autoSize) {
+                // Solo reduce el tamaño si es estrictamente necesario (Ej: nombres kilométricos)
+                AutoResizingText(
+                    text = value,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .padding(horizontal = 4.dp),
+                    color = Color.Black
+                )
+            } else {
+                Text(
+                    text = value,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .padding(horizontal = 4.dp),
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

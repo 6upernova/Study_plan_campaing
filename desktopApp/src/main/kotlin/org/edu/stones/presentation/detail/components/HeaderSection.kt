@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,25 +42,63 @@ import org.jetbrains.skia.Image as SkiaImage
 
 @Composable
 fun HeaderSection(
-    title: String
+    title: String,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            .fillMaxSize(),
+            //.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource("images/detailScreen/SubjectBorderName.png"),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
+            modifier = Modifier.matchParentSize()
         )
-        Text(
+        AutoResizingTitle(
             text = title,
-            style = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            color = Color.White
+        )
+    }
+}
+@Composable
+private fun AutoResizingTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified
+) {
+    // Definimos tamaños ideales para un título de cabecera
+    val defaultFontSize = 22.sp
+    val minFontSize = 12.sp
+
+    var fontSize by remember(text) { mutableStateOf(defaultFontSize) }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center // Fuerza a que el contenedor interno de texto se posicione al medio exacto
+    ) {
+        Text(
+            text = text,
+            color = color,
+            fontSize = fontSize,
+            // Permitimos hasta 2 líneas por si el nombre de la materia es extremadamente largo (ej: "Taller de Programación Orientada a Objetos")
+            maxLines = 2,
+            overflow = TextOverflow.Clip,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+            onTextLayout = { textLayoutResult ->
+                // El texto se reduce si se pasa del ancho o si excede las líneas máximas permitidas
+                if ((textLayoutResult.didOverflowWidth || textLayoutResult.didOverflowHeight) && fontSize > minFontSize) {
+                    fontSize = (fontSize.value - 0.5f).sp
+                } else if (!textLayoutResult.didOverflowWidth && !textLayoutResult.didOverflowHeight && fontSize < defaultFontSize) {
+                    fontSize = (fontSize.value + 0.5f).sp
+                }
+            }
         )
     }
 }
