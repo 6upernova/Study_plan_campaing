@@ -13,6 +13,7 @@ data class GraphConfig(
     val minVerticalSpacingPercent: Float = 0.1f,
     val paddingLeftPercent: Float = 0.03f,
     val paddingTopPercent: Float = 0.02f,
+    val paddingBottomPercent: Float = 0.02f,
     val bundleSpacingPercent: Float = 0.03f,
 
     val spriteSizeFactor: Float = 0.7f,

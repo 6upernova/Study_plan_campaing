@@ -73,30 +73,47 @@ object GraphLayoutEngine {
             .coerceIn(config.strokeWidthMinDp * density * 90f, config.strokeWidthMaxDp * density * 40f)
         val baseRowSpacing = availableHeight * config.baseRowSpacingPercent
         val minVerticalSpacing = max(availableHeight * config.minVerticalSpacingPercent, config.strokeWidthMinDp * density * 40f)
-        val paddingLeft = availableWidth * config.paddingLeftPercent
-        val paddingTop = availableHeight * config.paddingTopPercent
-        val bundleSpacing = max(layerSpacing * config.bundleSpacingPercent, config.strokeWidthMinDp * density * 4f)
+        var paddingLeft = availableWidth * config.paddingLeftPercent
+        var paddingTop = availableHeight * config.paddingTopPercent
+        var paddingBottom = availableHeight * config.paddingBottomPercent
+        var bundleSpacing = max(layerSpacing * config.bundleSpacingPercent, config.strokeWidthMinDp * density * 4f)
 
-        val rowSpacing = if (maxLayerHeight > 1) {
-            max(minVerticalSpacing, (availableHeight - 2 * paddingTop) / maxLayerHeight)
+        val usableHeight = availableHeight - paddingTop - paddingBottom
+
+        var rowSpacing = if (maxLayerHeight > 1) {
+            max(minVerticalSpacing, usableHeight / maxLayerHeight)
         } else {
             baseRowSpacing
         }
 
-        val spriteSize = (rowSpacing * config.spriteSizeFactor).coerceIn(
+        var spriteSize = (rowSpacing * config.spriteSizeFactor).coerceIn(
             availableHeight * config.spriteSizeMinPercent * density,
             availableHeight * config.spriteSizeMaxPercent * density
         )
 
-        val strokeWidth = (spriteSize * config.strokeWidthFactor).coerceIn(
+        var strokeWidth = (spriteSize * config.strokeWidthFactor).coerceIn(
             config.strokeWidthMinDp * density,
             config.strokeWidthMaxDp * density
         )
 
-        val fontSize = (spriteSize * config.fontSizeFactor).coerceIn(
+        var fontSize = (spriteSize * config.fontSizeFactor).coerceIn(
             config.fontSizeMinDp * density,
             config.fontSizeMaxDp * density
         )
+
+        val maxBottomY = paddingTop + (maxLayerHeight - 1) * rowSpacing + spriteSize
+        if (maxBottomY > availableHeight - paddingBottom) {
+            val requiredHeight = paddingTop + (maxLayerHeight - 1) * rowSpacing + spriteSize + paddingBottom
+            val scaleFactor = availableHeight / requiredHeight
+
+            paddingTop *= scaleFactor
+            paddingBottom *= scaleFactor
+            rowSpacing *= scaleFactor
+            spriteSize = (spriteSize * scaleFactor).coerceAtLeast(1f)
+            strokeWidth = (strokeWidth * scaleFactor).coerceAtLeast(0.5f)
+            fontSize = (fontSize * scaleFactor).coerceAtLeast(1f)
+            bundleSpacing = max(layerSpacing * config.bundleSpacingPercent, config.strokeWidthMinDp * density * 4f)
+        }
 
         layers.forEach { (layer, vertices) ->
             val x = paddingLeft + layer * layerSpacing
