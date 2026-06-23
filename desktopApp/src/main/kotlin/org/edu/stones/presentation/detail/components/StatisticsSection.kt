@@ -42,27 +42,22 @@ import org.jetbrains.skia.Image as SkiaImage
 fun StatisticsSection(
     subject: Subject
 ) {
-    val approvalPercentage = if (subject.inscriptos > 0) {
-        subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
-    } else {
-        0f
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
 
+    Row(
+        modifier = Modifier.fillMaxSize()
+    ) {
         ApprovalCard(
-            percentage = approvalPercentage,
+            percentage = approvalPercentage(subject),
             approved = subject.cantAprobados,
             enrolled = subject.inscriptos,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
 
         AverageCard(
             average = subject.notasPromedio,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
@@ -70,7 +65,7 @@ fun StatisticsSection(
         AttendanceCard(
             modality = subject.presencialidad,
             percentage = if (subject.presencialidad.equals("Presencial", true)) 1f else 0f,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
     }
 }
@@ -97,7 +92,7 @@ private fun ApprovalCard(
                 .matchParentSize()
         )
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
             Column(
@@ -111,10 +106,12 @@ private fun ApprovalCard(
                     text = "% DE APROBACIÓN",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-                Spacer(Modifier.height(12.dp))
+
+                Spacer(Modifier.weight(0.5f))
+
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(100.dp)
+                    modifier = Modifier.weight(2f).aspectRatio(1f)
                 ) {
                     Canvas(
                         modifier = Modifier.fillMaxSize()
@@ -186,10 +183,11 @@ private fun AverageCard(
                     text = "PROMEDIO DE NOTAS",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-                Spacer(Modifier.height(12.dp))
+
+                Spacer(Modifier.weight(0.5f))
+
                 Box(
-                    modifier = Modifier
-                        .size(width = 180.dp, height = 100.dp)
+                    modifier = Modifier.weight(2f).aspectRatio(1.8f)
                 ) {
                     Canvas(
                         modifier = Modifier
@@ -227,8 +225,7 @@ private fun AverageCard(
 
                     Text(
                         text = "10",
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd).offset(y = (-30).dp),
+                        modifier = Modifier.align(Alignment.BottomEnd).offset(y = (-30).dp),
                         style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                     )
                 }
@@ -269,38 +266,44 @@ private fun AttendanceCard(
                     text = "PRESENCIALIDAD",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-                Spacer(Modifier.height(16.dp))
+
+                Spacer(Modifier.weight(0.3f))
+
                 Icon(
                     imageVector = Icons.Filled.Person,
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.weight(1f).aspectRatio(1f),
                     tint = Color.White
                 )
-                Spacer(Modifier.height(8.dp))
+
+                Spacer(Modifier.weight(0.2f))
+
                 Text(
                     text = modality,
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-                Spacer(Modifier.height(8.dp))
+
+                Spacer(Modifier.weight(0.2f))
+
                 Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(16.dp)
+                    modifier = Modifier.fillMaxWidth().height(8.dp)
                 ) {
                     drawLine(
                         color = Color.LightGray,
                         start = Offset(0f, size.height / 2),
                         end = Offset(size.width, size.height / 2),
-                        strokeWidth = 8f
+                        strokeWidth = size.height
                     )
                     drawLine(
                         color = Color(0xFF795548),
                         start = Offset(0f, size.height / 2),
                         end = Offset(size.width * percentage, size.height / 2),
-                        strokeWidth = 8f
+                        strokeWidth = size.height
                     )
                 }
-                Spacer(Modifier.height(8.dp))
+
+                Spacer(Modifier.weight(0.2f))
+
                 Text(
                     text = "${(percentage * 100).toInt()}%",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
@@ -308,4 +311,15 @@ private fun AttendanceCard(
             }
         }
     }
+}
+
+private fun approvalPercentage(
+    subject: Subject
+): Float {
+    val approvalPercentage = if (subject.inscriptos > 0) {
+    subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
+    } else {
+        0f
+    }
+    return approvalPercentage
 }

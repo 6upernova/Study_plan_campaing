@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,13 +42,15 @@ import org.jetbrains.skia.Image as SkiaImage
 @Composable
 fun LegendSection(
     legend: String?,
-    isLegendLoading: Boolean
+    isLegendLoading: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.border(
-            width = 1.dp,
-            color = Color.Transparent
-        ),
+        modifier = Modifier.fillMaxSize()
+            .border(
+                width = 1.dp,
+                color = Color.Transparent
+            ),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -58,8 +61,8 @@ fun LegendSection(
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxSize().padding(top = 3.dp, bottom = 0.dp, start = 3.dp, end = 3.dp)
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -67,18 +70,32 @@ fun LegendSection(
                 text = "LEYENDA",
                 style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
             )
-            Spacer(Modifier.height(8.dp))
-            when {
-                isLegendLoading -> CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                legend != null -> Text(
-                    text = legend,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-                else -> Text(
-                    text = "—",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
-                )
+
+            Spacer(Modifier.weight(0.2f))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(2f),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                when {
+                    isLegendLoading -> CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    legend != null -> Text(
+                        text = legend,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        softWrap = true,
+                        overflow = TextOverflow.Visible
+                    )
+                    else -> Text(
+                        text = "No hay leyendas encontradas, puede que ningún aventurero haya vuelto...",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,17 +44,19 @@ import org.jetbrains.skia.Image as SkiaImage
 @Composable
 fun GeneralInfoSection(
     subject: Subject,
-    uiState: DetailViewModel.DetailUiState
+    uiState: DetailViewModel.DetailUiState,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp),
-        verticalAlignment = Alignment.Top
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         PropertiesTable(
             subject = subject,
-            modifier = Modifier.weight(2f).padding(horizontal = 8.dp)
+            modifier = Modifier
+                .weight(2f)
+                .fillMaxHeight()
+                .padding(vertical = 4.dp)
         )
 
         Spacer(Modifier.width(16.dp))
@@ -84,7 +89,7 @@ private fun SubjectImageBox(
         when {
             isImageLoading -> {
                 Box(
-                    modifier = modifier,
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -96,7 +101,7 @@ private fun SubjectImageBox(
                     bitmap = bitmap,
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
-                    modifier = modifier
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
@@ -105,7 +110,7 @@ private fun SubjectImageBox(
                     painter = painterResource("images/detailScreen/fotoBase.png"),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
-                    modifier = modifier
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -141,21 +146,21 @@ private fun PropertiesTable(
             painter = painterResource("images/detailScreen/dataBackground.png"),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .matchParentSize()
+            modifier = Modifier.matchParentSize()
+
         )
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
-            PropertyRow("Código", subject.codigo)
-            PropertyRow("Nombre", subject.nombre)
-            PropertyRow("Año", subject.anio.toString())
-            PropertyRow("Período", subject.periodo)
-            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString())
-            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio))
-            PropertyRow("Inscriptos", subject.inscriptos.toString())
-            PropertyRow("Presencialidad", subject.presencialidad)
-            PropertyRow("Cant. aprobados", subject.cantAprobados.toString())
+            PropertyRow("Código", subject.codigo, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Nombre", subject.nombre, Modifier.weight(1.5f), autoSize = true)
+            PropertyRow("Año", subject.anio.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Período", subject.periodo, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Año de recopilación", subject.anioDeRecopilacion.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Notas promedio", "%.2f".format(subject.notasPromedio), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Inscriptos", subject.inscriptos.toString(), Modifier.weight(1f), autoSize = false)
+            PropertyRow("Presencialidad", subject.presencialidad, Modifier.weight(1f), autoSize = false)
+            PropertyRow("Cant. aprobados", subject.cantAprobados.toString(), Modifier.weight(1f), autoSize = false)
         }
     }
 }
@@ -163,34 +168,84 @@ private fun PropertiesTable(
 @Composable
 private fun PropertyRow(
     label: String,
-    value: String
+    value: String,
+    modifier: Modifier = Modifier,
+    autoSize: Boolean = false
 ) {
     val borderColor = Color(0xFF8C7445)
     Box(
-        Modifier.border(
-            width = 1.dp,
-            color = borderColor
-        ))
-    {
+        modifier = modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = borderColor),
+        contentAlignment = Alignment.CenterStart
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = label,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp),
+                modifier = Modifier.weight(1f).padding(start = 12.dp),
             )
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
                 color = borderColor,
                 thickness = 1.dp
             )
-            Text(
-                text = value,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp)
-            )
+            if (autoSize) {
+                AutoResizingText(
+                    text = value,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .padding(start = 9.dp),
+                    color = Color.Black
+                )
+            } else {
+                Text(
+                    text = value,
+                    fontSize = 13.sp,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .padding(start = 9.dp),
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun AutoResizingText(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    maxLines: Int = 1
+) {
+    val defaultFontSize = 14.sp
+    val minFontSize = 8.sp
+
+    var fontSize by remember(text) { mutableStateOf(defaultFontSize) }
+    var readyToDraw by remember(text) { mutableStateOf(false) }
+
+    Text(
+        text = text,
+        color = color,
+        modifier = modifier.graphicsLayer {
+            alpha = if (readyToDraw) 1f else 0f
+        },
+        fontSize = fontSize,
+        maxLines = maxLines,
+        overflow = TextOverflow.Clip,
+        onTextLayout = { textLayoutResult ->
+
+            if (textLayoutResult.hasVisualOverflow && fontSize > minFontSize) {
+                fontSize = (fontSize.value - 0.2f).sp
+            } else {
+                readyToDraw = true
+            }
+        }
+    )
 }

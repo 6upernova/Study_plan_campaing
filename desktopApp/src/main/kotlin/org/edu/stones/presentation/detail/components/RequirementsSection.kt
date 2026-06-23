@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,7 +43,8 @@ import org.jetbrains.skia.Image as SkiaImage
 fun RequirementsSection(
     subject: Subject,
     viewModel: DetailViewModel,
-    uiState: DetailUiState
+    uiState: DetailUiState,
+    modifier: Modifier = Modifier
 ) {
 
     LaunchedEffect(Unit){
@@ -51,7 +53,7 @@ fun RequirementsSection(
     }
 
     Box(
-        modifier = Modifier.border(
+        modifier = modifier.fillMaxSize().border(
             width = 1.dp,
             color = Color.Transparent
         ),
@@ -66,7 +68,7 @@ fun RequirementsSection(
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -76,21 +78,35 @@ fun RequirementsSection(
                 text = "Requisitos para cursar/aprobar:",
                 style = MaterialTheme.typography.titleLarge.copy(color = Color.Black)
             )
-            Spacer(Modifier.height(8.dp))
+
+            Spacer(Modifier.weight(0.3f))
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().weight(2f),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-               var courseText = loadingCourseNames(uiState)
-               var aprovText = loadingAproveNames(uiState)
-
                 Text(
                     text = "Cursadas: ${loadingCourseNames(uiState)}",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(end = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                    textAlign = TextAlign.Start,
+                    softWrap = true,
+                    overflow = TextOverflow.Visible
                 )
+
                 Text(
                     text = "Aprobadas: ${loadingAproveNames(uiState)}",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(start = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                    textAlign = TextAlign.Start,
+                    softWrap = true,
+                    overflow = TextOverflow.Visible
                 )
             }
         }

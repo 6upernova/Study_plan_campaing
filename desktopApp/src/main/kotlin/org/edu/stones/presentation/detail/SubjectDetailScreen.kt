@@ -63,12 +63,7 @@ fun SubjectDetailScreen(
             ) {
                 when {
                     uiState.isLoading -> {
-                        Box(
-                            modifier = modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            showText("Cargando Materia...")
-                        }
+                        showText("Cargando Materia...",modifier)
                     }
 
                     uiState.subject != null -> {
@@ -76,27 +71,56 @@ fun SubjectDetailScreen(
 
                         Column(
                             modifier = modifier
-                                .fillMaxHeight()
+                                .fillMaxSize()
                                 .padding(16.dp)
                         ) {
 
-                            HeaderSection(subject.nombre)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.12f),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                HeaderSection(subject.nombre,modifier)
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.30f)
+                            ) {
+                                GeneralInfoSection(subject, uiState,modifier)
+                            }
 
                             Spacer(Modifier.height(8.dp))
 
-                            GeneralInfoSection(subject, uiState)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.18f)
+                            ) {
+                                RequirementsSection(subject, viewModel, uiState,modifier)
+                            }
+                            Spacer(Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.20f)
+                            ) {
+                                StatisticsSection(subject)
+                            }
 
                             Spacer(Modifier.height(8.dp))
 
-                            RequirementsSection(subject,viewModel, uiState)
-
-                            Spacer(Modifier.height(8.dp))
-
-                            StatisticsSection(subject)
-
-                            Spacer(Modifier.height(8.dp))
-
-                            LegendSection(uiState.legend, uiState.isLegendLoading)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.17f)
+                            ) {
+                                LegendSection(uiState.legend, uiState.isLegendLoading)
+                            }
                         }
                     }
 
@@ -113,12 +137,20 @@ fun SubjectDetailScreen(
 }
 
 @Composable
-private fun showText(text: String){
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        fontSize = 24.sp
-    )
+private fun showText(
+    text: String,
+    modifier: Modifier = Modifier
+){
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 24.sp
+        )
+    }
 }
 
 @Composable
