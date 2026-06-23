@@ -97,8 +97,6 @@ fun LegendSection(
                     )
                 }
             }
-
-            //Spacer(Modifier.weight(0.1f))
         }
     }
 }

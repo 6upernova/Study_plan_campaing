@@ -78,7 +78,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.12f).border(width = 3.dp, color = Color.Red),
+                                    .weight(0.12f),
                                 contentAlignment = Alignment.CenterStart
                             ) {
                                 HeaderSection(subject.nombre,modifier)
@@ -88,7 +88,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.30f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.30f)
                             ) {
                                 GeneralInfoSection(subject, uiState,modifier)
                             }
@@ -98,7 +98,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.18f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.18f)
                             ) {
                                 RequirementsSection(subject, viewModel, uiState,modifier)
                             }
@@ -107,7 +107,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.20f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.20f)
                             ) {
                                 StatisticsSection(subject)
                             }
@@ -117,7 +117,7 @@ fun SubjectDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.17f).border(width = 3.dp, color = Color.Red)
+                                    .weight(0.17f)
                             ) {
                                 LegendSection(uiState.legend, uiState.isLegendLoading)
                             }

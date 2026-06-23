@@ -186,7 +186,7 @@ private fun PropertyRow(
             Text(
                 text = label,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f).absolutePadding(3.dp),
+                modifier = Modifier.weight(1f).padding(start = 12.dp),
             )
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
@@ -198,7 +198,7 @@ private fun PropertyRow(
                     text = value,
                     modifier = Modifier
                         .weight(1.5f)
-                        .padding(horizontal = 4.dp),
+                        .padding(start = 9.dp),
                     color = Color.Black
                 )
             } else {
@@ -207,7 +207,7 @@ private fun PropertyRow(
                     fontSize = 13.sp,
                     modifier = Modifier
                         .weight(1.5f)
-                        .padding(horizontal = 4.dp),
+                        .padding(start = 9.dp),
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
