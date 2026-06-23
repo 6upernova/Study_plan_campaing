@@ -10,7 +10,7 @@ data class GraphConfig(
 
     val layerSpacingPercent: Float = 0.12f,
     val baseRowSpacingPercent: Float = 0.20f,
-    val minVerticalSpacingPercent: Float = 0.18f,
+    val minVerticalSpacingPercent: Float = 0.1f,
     val paddingLeftPercent: Float = 0.03f,
     val paddingTopPercent: Float = 0.02f,
     val paddingBottomPercent: Float = 0.02f,
@@ -23,7 +23,7 @@ data class GraphConfig(
     val strokeWidthFactor: Float = 0.08f,
     val strokeWidthMinDp: Float = 2f,
     val strokeWidthMaxDp: Float = 8f,
-    val fontSizeFactor: Float = 5f,
+    val fontSizeFactor: Float = 0.15f,
     val fontSizeMinDp: Float = 8f,
     val fontSizeMaxDp: Float = 14f,
 

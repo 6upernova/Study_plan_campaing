@@ -157,7 +157,6 @@ private fun StructureNode(
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.widthIn(max = 200.dp)
         )
     }
 }
