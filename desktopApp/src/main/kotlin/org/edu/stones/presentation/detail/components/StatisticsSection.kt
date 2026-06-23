@@ -42,27 +42,22 @@ import org.jetbrains.skia.Image as SkiaImage
 fun StatisticsSection(
     subject: Subject
 ) {
-    val approvalPercentage = if (subject.inscriptos > 0) {
-        subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
-    } else {
-        0f
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
 
+    Row(
+        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+    ) {
         ApprovalCard(
-            percentage = approvalPercentage,
+            percentage = approvalPercentage(subject),
             approved = subject.cantAprobados,
             enrolled = subject.inscriptos,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
 
         AverageCard(
             average = subject.notasPromedio,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
 
         Spacer(Modifier.width(12.dp))
@@ -70,7 +65,7 @@ fun StatisticsSection(
         AttendanceCard(
             modality = subject.presencialidad,
             percentage = if (subject.presencialidad.equals("Presencial", true)) 1f else 0f,
-            modifier = Modifier.weight(1f)//.fillMaxHeight()
+            modifier = Modifier.weight(1f).fillMaxHeight()
         )
     }
 }
@@ -308,4 +303,13 @@ private fun AttendanceCard(
             }
         }
     }
+}
+
+private fun approvalPercentage(subject: Subject): Float {
+    val approvalPercentage = if (subject.inscriptos > 0) {
+    subject.cantAprobados.toFloat() / subject.inscriptos.toFloat()
+    } else {
+        0f
+    }
+    return approvalPercentage
 }

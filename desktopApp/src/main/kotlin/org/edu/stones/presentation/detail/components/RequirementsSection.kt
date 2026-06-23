@@ -81,16 +81,22 @@ fun RequirementsSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-               var courseText = loadingCourseNames(uiState)
-               var aprovText = loadingAproveNames(uiState)
-
                 Text(
                     text = "Cursadas: ${loadingCourseNames(uiState)}",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                    textAlign = TextAlign.Start
                 )
+
                 Text(
                     text = "Aprobadas: ${loadingAproveNames(uiState)}",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                    textAlign = TextAlign.Start
                 )
             }
         }
