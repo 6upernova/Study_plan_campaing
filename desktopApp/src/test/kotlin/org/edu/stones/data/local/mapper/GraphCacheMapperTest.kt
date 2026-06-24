@@ -1,8 +1,8 @@
 package org.edu.stones.data.local.mapper
 
-import org.edu.stones.data.local.graph.CachedEdge
-import org.edu.stones.data.local.graph.CachedGraph
-import org.edu.stones.data.local.graph.CachedVertex
+import org.edu.stones.data.local.subjects.CachedEdge
+import org.edu.stones.data.local.subjects.CachedGraph
+import org.edu.stones.data.local.subjects.CachedVertex
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toCachedGraph
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toCachedVertex
 import org.edu.stones.data.local.mapper.GraphCacheMapper.toDomain
@@ -55,10 +55,10 @@ class GraphCacheMapperTest {
     }
 
     @Test
-    fun `mapea todos los campos incluyendo correlativas nulas`() {
+    fun `mapea todos los campos incluyendo correlativas vacias`() {
         val original = subject(
             codigo = "MAT9",
-            correlativasCursadas = null,
+            correlativasCursadas = "",
             correlativasAprobadas = "A, B",
             abreviatura = "",
         )

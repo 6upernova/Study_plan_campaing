@@ -12,8 +12,8 @@ fun subject(
     inscriptos: Int = 100,
     presencialidad: String = "Presencial",
     cantAprobados: Int = 50,
-    correlativasCursadas: String? = null,
-    correlativasAprobadas: String? = null,
+    correlativasCursadas: String = "",
+    correlativasAprobadas: String = "",
     abreviatura: String = codigo,
 ): Subject = Subject(
     codigo = codigo,

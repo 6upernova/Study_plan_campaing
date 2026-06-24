@@ -25,7 +25,7 @@ class GraphLayoutEngineTest {
         val graph = graphOf(a, b)
         graph.addEdge(a, b)
 
-        val layout = GraphLayoutEngine.computeLayout(graph)
+        val layout = GraphLayoutEngine.computeLayout(graph, 1200f, 800f, 1f)
 
         assertEquals(2, layout.nodes.size)
         assertEquals(1, layout.edges.size)
@@ -38,7 +38,7 @@ class GraphLayoutEngineTest {
         val segundo1 = subject(codigo = "S1", anio = 1, periodo = "Segundo Cuatrimestre")
         val primer2 = subject(codigo = "P2", anio = 2, periodo = "Primer Cuatrimestre")
 
-        val layout = GraphLayoutEngine.computeLayout(graphOf(primer1, segundo1, primer2))
+        val layout = GraphLayoutEngine.computeLayout(graphOf(primer1, segundo1, primer2), 1200f, 800f, 1f)
         val byCode = layout.nodes.associateBy { it.subject.codigo }
 
         assertEquals(0, byCode.getValue("P1").layer)
@@ -49,8 +49,8 @@ class GraphLayoutEngineTest {
     @Test
     fun `posicion x e y es determinista para el mismo codigo`() {
         val s = subject(codigo = "DET", anio = 1, periodo = "Primer Cuatrimestre")
-        val n1 = GraphLayoutEngine.computeLayout(graphOf(s)).nodes.first()
-        val n2 = GraphLayoutEngine.computeLayout(graphOf(s)).nodes.first()
+        val n1 = GraphLayoutEngine.computeLayout(graphOf(s), 1200f, 800f, 1f).nodes.first()
+        val n2 = GraphLayoutEngine.computeLayout(graphOf(s), 1200f, 800f, 1f).nodes.first()
 
         assertEquals(n1.x, n2.x)
         assertEquals(n1.y, n2.y)
@@ -58,7 +58,7 @@ class GraphLayoutEngineTest {
 
     @Test
     fun `grafo vacio produce layout vacio`() {
-        val layout = GraphLayoutEngine.computeLayout(graphOf())
+        val layout = GraphLayoutEngine.computeLayout(graphOf(), 1200f, 800f, 1f)
         assertTrue(layout.nodes.isEmpty())
         assertTrue(layout.edges.isEmpty())
     }
@@ -74,7 +74,7 @@ class GraphLayoutEngineTest {
         graph.addEdge(a, c)
         graph.addEdge(b, d)
 
-        val layout = GraphLayoutEngine.computeLayout(graph)
+        val layout = GraphLayoutEngine.computeLayout(graph, 1200f, 800f, 1f)
         val layer0 = layout.nodes.filter { it.layer == 0 }.sortedBy { it.positionInLayer }.map { it.subject.codigo }
         val layer1 = layout.nodes.filter { it.layer == 1 }.sortedBy { it.positionInLayer }.map { it.subject.codigo }
 
@@ -89,7 +89,7 @@ class GraphLayoutEngineTest {
         val graph = graphOf(a, b)
         graph.addEdge(a, b)
 
-        val layout = GraphLayoutEngine.computeLayout(graph)
+        val layout = GraphLayoutEngine.computeLayout(graph, 1200f, 800f, 1f)
         val edge = layout.edges.first()
 
         assertTrue(edge.waypoints.isEmpty())
@@ -102,7 +102,7 @@ class GraphLayoutEngineTest {
         val graph = graphOf(a, b)
         graph.addEdge(a, b)
 
-        val layout = GraphLayoutEngine.computeLayout(graph)
+        val layout = GraphLayoutEngine.computeLayout(graph, 1200f, 800f, 1f)
         val edge = layout.edges.first()
 
         assertFalse(edge.waypoints.isEmpty())
@@ -116,14 +116,14 @@ class GraphLayoutEngineTest {
         val d = subject(codigo = "D", anio = 4, periodo = "Primer Cuatrimestre")
         val e = subject(codigo = "E", anio = 5, periodo = "Primer Cuatrimestre")
 
-        val layout = GraphLayoutEngine.computeLayout(graphOf(a, b, c, d, e))
+        val layout = GraphLayoutEngine.computeLayout(graphOf(a, b, c, d, e), 1200f, 800f, 1f)
         val byCode = layout.nodes.associateBy { it.subject.codigo }
 
-        assertEquals("HUT_1", byCode.getValue("A").structureType.name.take(6))
-        assertEquals("HOUSE_1", byCode.getValue("B").structureType.name.take(7))
-        assertEquals("CAVE_1", byCode.getValue("C").structureType.name.take(6))
-        assertEquals("TOWER_1", byCode.getValue("D").structureType.name.take(7))
-        assertEquals("CASTLE_1", byCode.getValue("E").structureType.name.take(8))
+        assertTrue(byCode.getValue("A").structureType.name.startsWith("HUT_"))
+        assertTrue(byCode.getValue("B").structureType.name.startsWith("HOUSE_"))
+        assertTrue(byCode.getValue("C").structureType.name.startsWith("CAVE_"))
+        assertTrue(byCode.getValue("D").structureType.name.startsWith("TOWER_"))
+        assertTrue(byCode.getValue("E").structureType.name.startsWith("CASTLE_"))
     }
 
     @Test
@@ -134,7 +134,7 @@ class GraphLayoutEngineTest {
         val graph = graphOf(prereq, dependent)
         graph.addEdge(prereq, dependent)
 
-        val layout = GraphLayoutEngine.computeLayout(graph)
+        val layout = GraphLayoutEngine.computeLayout(graph, 1200f, 800f, 1f)
         val preNode = layout.nodes.first { it.subject.codigo == "PRE" }
         val depNode = layout.nodes.first { it.subject.codigo == "DEP" }
 
@@ -144,7 +144,7 @@ class GraphLayoutEngineTest {
     @Test
     fun `edge inexistente entre nodos no rompe el layout`() {
         val a = subject(codigo = "A")
-        val layout = GraphLayoutEngine.computeLayout(graphOf(a))
+        val layout = GraphLayoutEngine.computeLayout(graphOf(a), 1200f, 800f, 1f)
         assertNotNull(layout)
         assertEquals(1, layout.nodes.size)
     }

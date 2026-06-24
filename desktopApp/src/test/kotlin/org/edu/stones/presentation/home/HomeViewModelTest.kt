@@ -1,5 +1,9 @@
 package org.edu.stones.presentation.home
 
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -23,34 +27,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-private class FakeGetAllSubjects(
-    private val graph: DefaultDirectedGraph<Subject, DefaultEdge>,
-) : GetAllSubjectsUseCase {
-    override suspend fun invoke(): DefaultDirectedGraph<Subject, DefaultEdge> = graph
-}
-
-private class FakeGetDetail(private val result: Subject?) : GetSubjectDetailUseCase {
-    override suspend fun invoke(id: String): Subject? = result
-}
-
-private class FakePreloadImages : PreloadSubjectImagesUseCase {
-    var subjects: List<Subject>? = null
-        private set
-
-    override suspend fun invoke(subjects: List<Subject>) {
-        this.subjects = subjects
-    }
-}
-
-private class FakePreloadLegends : PreloadSubjectLegendsUseCase {
-    var subjects: List<Subject>? = null
-        private set
-
-    override suspend fun invoke(subjects: List<Subject>) {
-        this.subjects = subjects
-    }
-}
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
 
@@ -64,6 +40,7 @@ class HomeViewModelTest {
     @AfterTest
     fun tearDown() {
         Dispatchers.resetMain()
+        clearAllMocks()
     }
 
     private fun graphOf(vararg subjects: Subject): DefaultDirectedGraph<Subject, DefaultEdge> {
@@ -75,11 +52,21 @@ class HomeViewModelTest {
     @Test
     fun `getAllSubjects produce el layout y termina sin loading`() = runTest(dispatcher) {
         val graph = graphOf(subject(codigo = "A"), subject(codigo = "B", anio = 2))
+        val getAllSubjectsUseCase: GetAllSubjectsUseCase = mockk()
+        val getSubjectsUseCase: GetSubjectDetailUseCase = mockk()
+        val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase = mockk()
+        val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase = mockk()
+        
+        coEvery { getAllSubjectsUseCase() } returns graph
+        coEvery { getSubjectsUseCase(any()) } returns null
+        coEvery { preloadSubjectImagesUseCase(any()) } returns Unit
+        coEvery { preloadSubjectLegendsUseCase(any()) } returns Unit
+        
         val vm = HomeViewModel(
-            getAllSubjectsUseCase = FakeGetAllSubjects(graph),
-            getSubjectsUseCase = FakeGetDetail(null),
-            preloadSubjectImagesUseCase = FakePreloadImages(),
-            preloadSubjectLegendsUseCase = FakePreloadLegends(),
+            getAllSubjectsUseCase = getAllSubjectsUseCase,
+            getSubjectsUseCase = getSubjectsUseCase,
+            preloadSubjectImagesUseCase = preloadSubjectImagesUseCase,
+            preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase,
         )
 
         vm.getAllSubjects()
@@ -89,47 +76,75 @@ class HomeViewModelTest {
         assertFalse(state.isLoading)
         assertNotNull(state.graphLayoutData)
         assertEquals(2, state.graphLayoutData!!.nodes.size)
+        coVerify(exactly = 1) { getAllSubjectsUseCase() }
     }
 
     @Test
     fun `getAllSubjects dispara la precarga de imagenes y leyendas`() = runTest(dispatcher) {
         val graph = graphOf(subject(codigo = "A"))
-        val preImages = FakePreloadImages()
-        val preLegends = FakePreloadLegends()
+        val getAllSubjectsUseCase: GetAllSubjectsUseCase = mockk()
+        val getSubjectsUseCase: GetSubjectDetailUseCase = mockk()
+        val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase = mockk()
+        val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase = mockk()
+        
+        coEvery { getAllSubjectsUseCase() } returns graph
+        coEvery { getSubjectsUseCase(any()) } returns null
+        coEvery { preloadSubjectImagesUseCase(any()) } returns Unit
+        coEvery { preloadSubjectLegendsUseCase(any()) } returns Unit
+        
         val vm = HomeViewModel(
-            getAllSubjectsUseCase = FakeGetAllSubjects(graph),
-            getSubjectsUseCase = FakeGetDetail(null),
-            preloadSubjectImagesUseCase = preImages,
-            preloadSubjectLegendsUseCase = preLegends,
+            getAllSubjectsUseCase = getAllSubjectsUseCase,
+            getSubjectsUseCase = getSubjectsUseCase,
+            preloadSubjectImagesUseCase = preloadSubjectImagesUseCase,
+            preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase,
         )
 
         vm.getAllSubjects()
         advanceUntilIdle()
 
-        assertEquals(listOf("A"), preImages.subjects?.map { it.codigo })
-        assertEquals(listOf("A"), preLegends.subjects?.map { it.codigo })
+        coVerify(exactly = 1) { preloadSubjectImagesUseCase(listOf(subject(codigo = "A"))) }
+        coVerify(exactly = 1) { preloadSubjectLegendsUseCase(listOf(subject(codigo = "A"))) }
     }
 
     @Test
     fun `getSubjectDetail delega en el use case`() = runTest(dispatcher) {
         val expected = subject(codigo = "DET")
+        val getAllSubjectsUseCase: GetAllSubjectsUseCase = mockk()
+        val getSubjectsUseCase: GetSubjectDetailUseCase = mockk()
+        val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase = mockk()
+        val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase = mockk()
+        
+        coEvery { getAllSubjectsUseCase() } returns graphOf()
+        coEvery { getSubjectsUseCase(any()) } returns expected
+        
         val vm = HomeViewModel(
-            getAllSubjectsUseCase = FakeGetAllSubjects(graphOf()),
-            getSubjectsUseCase = FakeGetDetail(expected),
-            preloadSubjectImagesUseCase = FakePreloadImages(),
-            preloadSubjectLegendsUseCase = FakePreloadLegends(),
+            getAllSubjectsUseCase = getAllSubjectsUseCase,
+            getSubjectsUseCase = getSubjectsUseCase,
+            preloadSubjectImagesUseCase = preloadSubjectImagesUseCase,
+            preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase,
         )
 
         assertEquals(expected, vm.getSubjectDetail("DET"))
+        coVerify(exactly = 1) { getSubjectsUseCase("DET") }
     }
 
     @Test
     fun `getAllSubjects con grafo vacio produce layout vacio`() = runTest(dispatcher) {
+        val getAllSubjectsUseCase: GetAllSubjectsUseCase = mockk()
+        val getSubjectsUseCase: GetSubjectDetailUseCase = mockk()
+        val preloadSubjectImagesUseCase: PreloadSubjectImagesUseCase = mockk()
+        val preloadSubjectLegendsUseCase: PreloadSubjectLegendsUseCase = mockk()
+        
+        coEvery { getAllSubjectsUseCase() } returns graphOf()
+        coEvery { getSubjectsUseCase(any()) } returns null
+        coEvery { preloadSubjectImagesUseCase(any()) } returns Unit
+        coEvery { preloadSubjectLegendsUseCase(any()) } returns Unit
+        
         val vm = HomeViewModel(
-            getAllSubjectsUseCase = FakeGetAllSubjects(graphOf()),
-            getSubjectsUseCase = FakeGetDetail(null),
-            preloadSubjectImagesUseCase = FakePreloadImages(),
-            preloadSubjectLegendsUseCase = FakePreloadLegends(),
+            getAllSubjectsUseCase = getAllSubjectsUseCase,
+            getSubjectsUseCase = getSubjectsUseCase,
+            preloadSubjectImagesUseCase = preloadSubjectImagesUseCase,
+            preloadSubjectLegendsUseCase = preloadSubjectLegendsUseCase,
         )
 
         vm.getAllSubjects()
@@ -138,5 +153,6 @@ class HomeViewModelTest {
         val state = vm.homeStateFlow.value
         assertNotNull(state.graphLayoutData)
         assertTrue(state.graphLayoutData!!.nodes.isEmpty())
+        coVerify(exactly = 1) { getAllSubjectsUseCase() }
     }
 }

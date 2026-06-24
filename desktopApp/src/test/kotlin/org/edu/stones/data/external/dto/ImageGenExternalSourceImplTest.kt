@@ -2,17 +2,26 @@ package org.edu.stones.data.external.dto
 
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
+import io.mockk.clearAllMocks
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class PollinationsImageSourceTest {
+class ImageGenExternalSourceImplTest {
 
     private val noopClient: () -> HttpClient = { HttpClient() }
 
     private fun ok(bytes: ByteArray) = HttpStatusCode.OK to bytes
+
+    @AfterTest
+    fun cleanup() {
+        clearAllMocks()
+    }
 
     @Test
     fun `devuelve los bytes cuando la respuesta no esta vacia`() = runTest {
@@ -64,7 +73,7 @@ class PollinationsImageSourceTest {
     fun `reintenta ante 429 y devuelve los bytes al siguiente intento exitoso`() = runTest {
         var calls = 0
         val expected = byteArrayOf(7, 7)
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, _ ->
                 calls++
@@ -80,7 +89,7 @@ class PollinationsImageSourceTest {
 
     @Test
     fun `devuelve null ante error HTTP no recuperable`() = runTest {
-        val source = PollinationsImageSource(
+        val source = ImageGenExternalSourceImpl(
             clientProvider = noopClient,
             bytesProvider = { _, _ -> HttpStatusCode.InternalServerError to ByteArray(0) },
         )

@@ -57,8 +57,8 @@ class DTORemoteMateriasTest {
 
         val dto = json.decodeFromString<DTORemoteMaterias>(raw)
 
-        assertNull(dto.correlativasCursadas)
-        assertNull(dto.correlativasAprobadas)
+        assertEquals("", dto.correlativasCursadas)
+        assertEquals("", dto.correlativasAprobadas)
         assertEquals("", dto.abreviatura)
     }
 

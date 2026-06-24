@@ -1,10 +1,11 @@
 package org.edu.stones.data.local
 
 import kotlinx.coroutines.test.runTest
-import org.edu.stones.data.local.graph.CacheConstants
-import org.edu.stones.data.local.graph.CachedEdge
-import org.edu.stones.data.local.graph.CachedGraph
-import org.edu.stones.data.local.graph.CachedVertex
+import org.edu.stones.data.local.subjects.CacheConstants
+import org.edu.stones.data.local.subjects.CachedEdge
+import org.edu.stones.data.local.subjects.CachedGraph
+import org.edu.stones.data.local.subjects.CachedVertex
+import org.edu.stones.data.local.subjects.SubjectLocalDataSourceImpl
 import java.io.File
 import java.nio.file.Files
 import kotlin.test.AfterTest
@@ -37,7 +38,7 @@ class SubjectLocalDataSourceImplTest {
                 codigo = "A", nombre = "Algebra", anio = 1, periodo = "Primer Cuatrimestre",
                 anioDeRecopilacion = 2024, notasPromedio = 7.0, inscriptos = 100,
                 presencialidad = "Presencial", cantAprobados = 50,
-                correlativasCursadas = null, correlativasAprobadas = null, abreviatura = "ALG"
+                correlativasCursadas = "", correlativasAprobadas = "", abreviatura = "ALG"
             )
         ),
         edges = listOf(CachedEdge("A", "A")),

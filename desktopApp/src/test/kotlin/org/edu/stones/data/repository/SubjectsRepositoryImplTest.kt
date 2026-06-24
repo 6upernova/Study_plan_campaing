@@ -67,8 +67,8 @@ class SubjectsRepositoryImplTest {
     }
 
     @Test
-    fun `correlativas nulas no generan aristas`() {
-        val a = subject(codigo = "A", correlativasCursadas = null, correlativasAprobadas = null)
+    fun `correlativas vacias no generan aristas`() {
+        val a = subject(codigo = "A", correlativasCursadas = "", correlativasAprobadas = "")
         val graph = repo().buildGraph(listOf(a))
         assertEquals(1, graph.vertexSet().size)
         assertTrue(graph.edgeSet().isEmpty())
